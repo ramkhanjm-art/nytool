@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="km">
-<head>
+<html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>imsela - Pro Tools</title>
+    <title>ny Tools</title>
+    
+    <link rel="icon" type="image/png" href="logo.png"> 
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -28,12 +29,16 @@
         /* Navbar */
         nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 20px; }
-        .logo img { border-radius: 12px; }
-        .nav-controls { display: flex; gap: 8px; align-items: center; }
-        .btn-ctrl {
+        .logo img { border-radius: 10px; width: 35px; height: 35px; object-fit: cover; }
+        
+        .nav-controls { display: flex; gap: 10px; align-items: center; }
+        
+        /* Language & Theme Switches */
+        .switch-btn {
             background: var(--card); border: 1px solid var(--border);
-            color: var(--text); padding: 6px 12px; border-radius: 12px;
+            color: var(--text); padding: 6px 15px; border-radius: 20px;
             cursor: pointer; font-size: 13px; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
         }
 
         /* Tools Grid */
@@ -47,49 +52,35 @@
         
         /* Icon Style តាមគំរូ */
         .icon-box {
-            width: 60px; height: 60px; margin: 0 auto 10px;
+            width: 65px; height: 65px; margin: 0 auto 10px;
             background-color: var(--icon-bg);
-            border-radius: 18px;
+            border-radius: 20px;
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
         }
-        .icon-box img { width: 70%; height: 70%; object-fit: contain; }
+        .icon-box img { width: 75%; height: 75%; object-fit: contain; }
         .tool-card span { font-size: 11px; font-weight: 500; display: block; line-height: 1.3; }
 
-        /* Page System */
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page.active { display: block; }
 
-        /* Forms */
+        /* TTS Interface */
         .back-btn { color: var(--primary); cursor: pointer; margin-bottom: 15px; display: inline-block; font-weight: bold; }
         select, textarea {
-            width: 100%; padding: 15px; border-radius: 50px; border: 1px solid var(--border);
+            width: 100%; padding: 15px; border-radius: 25px; border: 1px solid var(--border);
             margin-bottom: 12px; background: var(--card); color: var(--text);
-            font-family: inherit; font-size: 16px; box-sizing: border-box; outline: none;
+            font-family: inherit; box-sizing: border-box; outline: none;
         }
-        textarea { border-radius: 20px; height: 130px; resize: none; }
         .btn-main {
             background: var(--primary); color: white; width: 100%;
             padding: 18px; border-radius: 50px; border: none;
-            font-weight: bold; font-size: 18px; cursor: pointer;
+            font-weight: bold; font-size: 17px; cursor: pointer;
         }
 
-        /* Result Area */
-        .preview-box {
+        .result-box {
             background: var(--purple); color: white; border-radius: 25px;
-            padding: 20px; margin: 20px 0; display: none; align-items: center; gap: 15px;
+            padding: 20px; margin-top: 20px; display: none; align-items: center; justify-content: space-between;
         }
-        .play-btn {
-            background: white; border: none; width: 45px; height: 45px;
-            border-radius: 50%; color: #ff9800; cursor: pointer; font-size: 20px;
-        }
-        .download-btn {
-            background: #28a745; color: white; width: 300px;
-            padding: 15px; border-radius: 15px; border: none;
-            font-weight: bold; cursor: pointer; margin-top: 10px; display: none;
-            text-align: center; text-decoration: none; font-size: 16px;
-        }
+        .dl-btn { background: #28a745; color: white; padding: 10px 20px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body data-theme="light">
@@ -97,15 +88,14 @@
 <div class="app-container">
     <nav>
         <div class="logo">
-            <img src="logo.png" width="35" alt="logo">
-            <span>My Tools</span>
+            <img src="logo.png" alt="logo">
+            <span>Ny Tools</span>
         </div>
         <div class="nav-controls">
-            <button class="btn-ctrl" onclick="toggleLang()" id="langBtn">EN</button>
-            <div style="display:flex; align-items:center; gap:5px; background:var(--card); padding:5px 10px; border-radius:15px; border:1px solid var(--border);">
-                <span style="font-size:12px;" class="ui-text" data-kh="ពន្លឺ" data-en="Light">Light</span>
-                <input type="checkbox" id="themeToggle" onchange="toggleTheme()" style="cursor:pointer;">
-            </div>
+            <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
+            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">
+                <span id="themeText">Light</span> ☀️
+            </button>
         </div>
     </nav>
 
@@ -115,73 +105,82 @@
                 <div class="icon-box">
                     <img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png" alt="TTS Icon">
                 </div>
-                <span class="ui-text" data-kh="អក្សរទៅសម្លេង" data-en="Text to Speech">អក្សរទៅសម្លេង</span>
+                <span class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span>
             </div>
-            
+
             <div class="tool-card">
                 <div class="icon-box">
                     <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="PDF Icon">
                 </div>
-                <span class="ui-text" data-kh="រូបភាពទៅ PDF" data-en="Image to PDF">រូបភាពទៅ PDF</span>
+                <span class="ui-text" data-en="Image to PDF" data-kh="រូបភាពទៅ PDF">Image to PDF</span>
             </div>
 
             <div class="tool-card">
                 <div class="icon-box">
                     <img src="https://cdn-icons-png.flaticon.com/512/241/241528.png" alt="QR Icon">
                 </div>
-                <span class="ui-text" data-kh="បង្កើត QR" data-en="QR Generator">បង្កើត QR</span>
+                <span class="ui-text" data-en="QR Generator" data-kh="បង្កើត QR">QR Generator</span>
             </div>
         </div>
     </div>
 
     <div id="tts" class="page">
-        <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-kh="ត្រឡប់" data-en="Back">ត្រឡប់</span></span>
-        <h2 class="ui-text" data-kh="អក្សរទៅសម្លេង" data-en="Text to Speech">អក្សរទៅសម្លេង</h2>
+        <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+        <h2 class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</h2>
 
         <select id="langSel">
-            <option value="km">ខ្មែរ (Khmer)</option>
             <option value="en">English</option>
+            <option value="km">ខ្មែរ (Khmer)</option>
+            <option value="zh">Chinese</option>
+            <option value="th">Thai</option>
+            <option value="ja">Japanese</option>
             </select>
 
         <select id="genderSel">
-            <option value="male" selected class="ui-text" data-kh="ភេទ: ប្រុស (Default)" data-en="Gender: Male (Default)">ភេទ: ប្រុស (Default)</option>
-            <option value="female" class="ui-text" data-kh="ភេទ: ស្រី" data-en="Gender: Female">ភេទ: ស្រី</option>
+            <option value="male" selected class="ui-text" data-en="Male (Default)" data-kh="ភេទ: ប្រុស (ដើម)">Male (Default)</option>
+            <option value="female" class="ui-text" data-en="Female" data-kh="ភេទ: ស្រី">Female</option>
         </select>
 
-        <textarea id="textIn" class="ui-placeholder" data-kh-ph="វាយអត្ថបទនៅទីនេះ..." data-en-ph="Type your text here..." placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
+        <textarea id="textIn" class="ui-placeholder" data-en-ph="Type your text here..." data-kh-ph="វាយអត្ថបទនៅទីនេះ..." placeholder="Type your text here..."></textarea>
         
-        <button class="btn-main ui-text" onclick="doTTS()" id="genBtn" data-kh="🎤 បង្កើតសម្លេង" data-en="🎤 Generate Voice">🎤 បង្កើតសម្លេង</button>
+        <button class="btn-main ui-text" onclick="doTTS()" id="genBtn" data-en="🎤 Generate Voice" data-kh="🎤 បង្កើតសម្លេង">🎤 Generate Voice</button>
 
-        <div id="pbox" class="preview-box">
-            <button class="play-btn" onclick="playAud()">▶</button>
-            <span class="ui-text" data-kh="មើលសម្លេងជាមុន..." data-en="Previewing audio...">មើលសម្លេងជាមុន...</span>
+        <div id="resBox" class="result-box">
+            <button onclick="playAud()" style="background:white; border:none; width:40px; height:40px; border-radius:50%; color:#ff9800; cursor:pointer;">▶</button>
+            <a id="dlLink" class="dl-btn ui-text" data-en="Download MP3" data-kh="ទាញយក MP3" target="_blank">Download MP3</a>
         </div>
-
-        <a id="dlBtn" class="download-btn ui-text" data-kh="📥 ទាញយក MP3" data-en="📥 Download MP3" target="_blank">📥 ទាញយក MP3</a>
     </div>
 </div>
 
 <script>
-    let currentAudUrl = "";
+    let audioUrl = "";
     const API = "https://nytool.onrender.com/api/tts";
 
-    function toggleTheme() {
-        const isDark = document.getElementById('themeToggle').checked;
-        document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    }
-
+    // ១. មុខងារប្តូរភាសា (Default ជា English)
     function toggleLang() {
         const btn = document.getElementById('langBtn');
-        const isKh = btn.innerText === 'KH';
-        btn.innerText = isKh ? 'EN' : 'KH';
+        const isEn = btn.innerText === 'KH'; // បើប៊ូតុងបង្ហាញ KH មានន័យថាបច្ចុប្បន្នជា EN
+        
+        btn.innerText = isEn ? 'EN' : 'KH';
 
         document.querySelectorAll('.ui-text').forEach(el => {
-            el.innerText = isKh ? el.dataset.kh : el.dataset.en;
+            el.innerText = isEn ? el.dataset.kh : el.dataset.en;
         });
 
         document.querySelectorAll('.ui-placeholder').forEach(el => {
-            el.placeholder = isKh ? el.dataset.khPh : el.dataset.enPh;
+            el.placeholder = isEn ? el.dataset.khPh : el.dataset.enPh;
         });
+    }
+
+    // ២. មុខងារប្តូរពន្លឺ
+    function toggleTheme() {
+        const body = document.body;
+        const text = document.getElementById('themeText');
+        const isLight = body.getAttribute('data-theme') === 'light';
+        
+        body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        text.innerText = isLight ? 'Dark' : 'Light';
+        document.getElementById('themeBtn').innerHTML = isLight ? 'Dark 🌙' : 'Light ☀️';
     }
 
     function showPage(id) {
@@ -191,12 +190,9 @@
 
     async function doTTS() {
         const text = document.getElementById('textIn').value;
-        const lang = document.getElementById('langSel').value;
-        const gender = document.getElementById('genderSel').value;
-        const btn = document.getElementById('genBtn');
-
         if(!text) return;
-
+        
+        const btn = document.getElementById('genBtn');
         btn.disabled = true;
         btn.innerText = "...";
 
@@ -204,25 +200,27 @@
             const res = await fetch(API, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ text, lang, gender })
+                body: JSON.stringify({
+                    text,
+                    lang: document.getElementById('langSel').value,
+                    gender: document.getElementById('genderSel').value
+                })
             });
             const data = await res.json();
             if(data.audioUrl) {
-                currentAudUrl = data.audioUrl;
-                document.getElementById('pbox').style.display = 'flex';
-                const dl = document.getElementById('dlBtn');
-                dl.href = currentAudUrl;
-                dl.style.display = 'block';
-                dl.setAttribute('download', 'voice.mp3');
+                audioUrl = data.audioUrl;
+                document.getElementById('resBox').style.display = 'flex';
+                document.getElementById('dlLink').href = audioUrl;
             }
-        } catch (e) { alert("Error connecting to server!"); }
+        } catch (e) { alert("Error!"); }
         finally {
             btn.disabled = false;
-            btn.innerText = document.getElementById('langBtn').innerText === 'EN' ? "🎤 បង្កើតសម្លេង" : "🎤 Generate Voice";
+            const isKh = document.getElementById('langBtn').innerText === 'EN';
+            btn.innerText = isKh ? "🎤 បង្កើតសម្លេង" : "🎤 Generate Voice";
         }
     }
 
-    function playAud() { if(currentAudUrl) new Audio(currentAudUrl).play(); }
+    function playAud() { if(audioUrl) new Audio(audioUrl).play(); }
 </script>
 </body>
 </html>
