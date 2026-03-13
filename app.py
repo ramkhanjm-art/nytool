@@ -1,96 +1,75 @@
 import os
 import uuid
-import random
-import time
-from flask import Flask, request, jsonify, send_from_directory, render_template_string
+import asyncio
+import edge_tts
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
-from gtts import gTTS
-import qrcode
-from PIL import Image
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
 CORS(app)
 
-# កំណត់ Folder សម្រាប់ទុក File បណ្ដោះអាសន្នលើ Render
-UPLOAD_FOLDER = '/tmp/uploads'
+# បង្កើត Folder សម្រាប់ទុក File សំឡេង
 AUDIO_FOLDER = '/tmp/audio'
+if not os.path.exists(AUDIO_FOLDER):
+    os.makedirs(AUDIO_FOLDER)
 
-for folder in [UPLOAD_FOLDER, AUDIO_FOLDER]:
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+# មុខងារបំប្លែងអត្ថបទទៅជាសំឡេងពិរោះ (Async)
+async def generate_voice(text, lang, file_path):
+    # កំណត់សំឡេងតាមភាសា (Neural Voices)
+    voices = {
+        "km": "km-KH-SreymomNeural", # ខ្មែរ (ស្រី)
+        "en": "en-US-AvaNeural",      # អង់គ្លេស
+        "zh": "zh-CN-XiaoxiaoNeural", # ចិន
+        "ja": "ja-JP-NanamiNeural",   # ជប៉ុន
+        "ko": "ko-KR-SunHiNeural",    # កូរ៉េ
+        "th": "th-TH-PremwadeeNeural",# ថៃ
+        "vi": "vi-VN-HoaiMyNeural",   # វៀតណាម
+        "fr": "fr-FR-DeniseNeural",   # បារាំង
+        "ar": "ar-SA-ZariyahNeural"   # អារ៉ាប់
+    }
+    
+    # បើមិនមានក្នុងបញ្ជី ឱ្យប្រើភាសាអង់គ្លេសជា Default
+    selected_voice = voices.get(lang, "en-US-AvaNeural")
+    
+    communicate = edge_tts.Communicate(text, selected_voice)
+    await communicate.save(file_path)
 
-# --- ១. ទំព័រដើម (ដោះស្រាយបញ្ហា Not Found) ---
+# --- ផ្លូវទៅកាន់ទំព័រដើម ---
 @app.route('/')
 def index():
-    # ប្រសិនបើអ្នកមាន index.html ក្នុង folder ជាមួយគ្នា វានឹងអានឯកសារនោះ
     try:
-        with open('index.html', 'r', encoding='utf-8') as f:
-            return f.read()
-    except FileNotFoundError:
-        return "<h1>Backend is Running!</h1><p>សូមប្រាកដថាអ្នកបាន Upload index.html ទៅក្នុង GitHub មេ។</p>"
+        return render_template('index.html')
+    except:
+        return "Backend is running! Please upload index.html"
 
-# --- ២. Tool: Text to Speech (TTS) ---
+# --- API បង្កើតសំឡេង ---
 @app.route('/api/tts', methods=['POST'])
-def text_to_speech():
-    try:
-        data = request.json
-        text = data.get('text', '')
-        lang = data.get('lang', 'km')
-        
-        if not text:
-            return jsonify({"error": "សូមបញ្ចូលអត្ថបទ"}), 400
+def tts_endpoint():
+    data = request.json
+    text = data.get('text', '')
+    lang = data.get('lang', 'km')
 
-        file_name = f"tts_{uuid.uuid4()}.mp3"
-        file_path = os.path.join(AUDIO_FOLDER, file_name)
-        
-        tts = gTTS(text=text, lang=lang)
-        tts.save(file_path)
-        
-        return jsonify({"audioUrl": f"{request.host_url}download/audio/{file_name}"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
 
-# --- ៣. Tool: QR Code Generator ---
-@app.route('/api/qr', methods=['POST'])
-def generate_qr():
-    try:
-        data = request.json
-        qr_data = data.get('data', '')
-        if not qr_data:
-            return jsonify({"error": "No data"}), 400
+    file_name = f"voice_{uuid.uuid4()}.mp3"
+    file_path = os.path.join(AUDIO_FOLDER, file_name)
 
-        file_name = f"qr_{uuid.uuid4()}.png"
-        file_path = os.path.join(UPLOAD_FOLDER, file_name)
-        
-        img = qrcode.make(qr_data)
-        img.save(file_path)
-        
-        return jsonify({"qrUrl": f"{request.host_url}download/uploads/{file_name}"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # ដំណើរការ Async ក្នុង Flask
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(generate_voice(text, lang, file_path))
+    loop.close()
 
-# --- ៤. Tool: AI Chat / Math AI (Free Mode) ---
-@app.route('/api/ai-chat', methods=['POST'])
-def ai_chat():
-    query = request.json.get('query', '').lower()
-    # នេះជា Logic ឆ្លើយតបសាមញ្ញ (អ្នកអាចភ្ជាប់ API កម្រិតខ្ពស់ពេលក្រោយ)
-    responses = [
-        "ខ្ញុំអាចជួយអ្នកបាន! តើអ្នកចង់សួរអ្វី?",
-        "សំណួរល្អណាស់! ចាំបន្តិចខ្ញុំកំពុងគិត...",
-        "បាទ/ចាស! ខ្ញុំយល់ហើយ។"
-    ]
-    return jsonify({"answer": random.choice(responses)})
+    return jsonify({
+        "audioUrl": f"{request.host_url}download/audio/{file_name}"
+    })
 
-# --- ៥. មុខងារសម្រាប់ឱ្យគេទាញយក File (Download) ---
+# --- ផ្លូវសម្រាប់ទាញយក File ---
 @app.route('/download/audio/<filename>')
 def download_audio(filename):
     return send_from_directory(AUDIO_FOLDER, filename)
 
-@app.route('/download/uploads/<filename>')
-def download_uploads(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
-
 if __name__ == '__main__':
-    # កំណត់ Port ឱ្យត្រូវជាមួយ Render
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
