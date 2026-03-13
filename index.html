@@ -4,226 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>imsela - Pro Tools</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #007bff;
-            --purple: #6f42c1;
-            --bg: #fdfaf7;
-            --white: #ffffff;
-        }
-
-        body {
-            background-color: var(--bg);
-            font-family: 'Kantumruy Pro', sans-serif;
-            margin: 0; padding: 0;
-            display: flex; justify-content: center;
-            color: #333;
-        }
-
-        .app-container {
-            width: 100%; max-width: 480px; min-height: 100vh;
-            padding: 20px; box-sizing: border-box;
-        }
-
-        /* បិទ/បើក ទំព័រ */
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Home Page --- */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo { font-weight: bold; font-size: 26px; }
-        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .tool-card {
-            background: var(--white); border-radius: 20px; padding: 20px 10px;
-            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            cursor: pointer; border: none; transition: 0.2s;
-        }
-        .tool-card:active { transform: scale(0.95); }
-        .tool-card img { width: 50px; height: 50px; margin-bottom: 10px; border-radius: 12px; }
-        .tool-name { font-size: 11px; font-weight: 500; color: #555; }
-
-        /* --- TTS Page --- */
-        .back-btn { color: #888; margin-bottom: 15px; cursor: pointer; display: inline-block; }
-        h2 { font-size: 24px; font-weight: bold; margin: 10px 0 25px; }
-        
-        .bot-badge {
-            background: var(--primary); color: white; border-radius: 50px;
-            padding: 10px 25px; display: inline-flex; align-items: center;
-            gap: 10px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-        }
-
-        select, textarea {
-            width: 100%; padding: 15px; border-radius: 50px;
-            border: 1px solid #eee; background: white;
-            font-family: inherit; font-size: 16px; box-sizing: border-box;
-            margin-bottom: 15px; outline: none; appearance: none;
-        }
-
-        textarea { border-radius: 20px; height: 130px; resize: none; padding-top: 15px; }
-
-        .speed-label { font-size: 14px; font-weight: bold; margin-bottom: 10px; display: block; }
-        input[type="range"] { width: 100%; accent-color: #333; margin-bottom: 5px; }
-        .speed-marks { display: flex; justify-content: space-between; font-size: 12px; color: #bbb; margin-bottom: 30px; }
-
-        .btn-main {
-            background: var(--primary); color: white; width: 100%;
-            padding: 18px; border-radius: 50px; border: none;
-            font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,123,255,0.2);
-        }
-
-        /* Preview Box ពណ៌ស្វាយតាមរូបភាព */
-        .preview-box {
-            background: var(--purple); color: white; border-radius: 30px;
-            padding: 20px; margin: 30px 0; display: none;
-            align-items: center; gap: 15px;
-        }
-
-        .play-white {
-            background: white; border: none; width: 50px; height: 50px;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; cursor: pointer; color: #ff9800; font-size: 24px;
-        }
-
-        .wave { flex-grow: 1; height: 40px; background: url('https://cdn-icons-png.flaticon.com/512/5948/5948543.png'); background-size: contain; opacity: 0.5; }
-
-        .download-btn {
-            border: 2px solid #333; background: white; color: #333;
-            width: 100%; padding: 16px; border-radius: 15px;
-            font-weight: bold; cursor: pointer; font-size: 16px;
-        }
+        :root { --primary: #007bff; --purple: #6f42c1; --bg: #fdfaf7; }
+        body { background: var(--bg); font-family: 'Kantumruy Pro', sans-serif; margin: 0; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
+        .page { display: none; } .page.active { display: block; }
+        .bot-badge { background: var(--primary); color: white; border-radius: 50px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        select, textarea { width: 100%; padding: 15px; border-radius: 50px; border: 1px solid #eee; margin-bottom: 12px; outline: none; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        textarea { border-radius: 20px; height: 120px; resize: none; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .preview-box { background: var(--purple); color: white; border-radius: 25px; padding: 20px; margin: 25px 0; display: none; align-items: center; gap: 15px; }
+        .play-btn { background: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: #ff9800; font-size: 20px; }
+        .download-btn { border: 2px solid #333; background: white; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div id="home" class="page active">
-        <header>
-            <span class="logo">imsela</span>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <span style="font-size:14px; border:1px solid #ddd; padding:5px 12px; border-radius:10px;">EN</span>
-                <span>☀️</span>
-            </div>
-        </header>
-
-        <div class="tools-grid">
-            <div class="tool-card" onclick="goTo('tts')">
-                <img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png">
-                <div class="tool-name">អត្ថបទទៅសម្លេង</div>
-            </div>
-        </div>
+        <h1 onclick="showPage('tts')" style="cursor:pointer; background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.05);">🎤 អត្ថបទទៅសម្លេង</h1>
     </div>
 
     <div id="tts" class="page">
-        <div class="back-btn" onclick="goTo('home')">← ត្រឡប់: ឧបករណ៍</div>
+        <div onclick="showPage('home')" style="cursor:pointer; color:#888; margin-bottom:15px;">← ត្រឡប់</div>
         <h2>អត្ថបទទៅសម្លេង (TTS)</h2>
-        
-        <div class="bot-badge">🤖 Bot</div>
+        <div class="bot-badge">🤖 Bot AI</div>
 
         <select id="lang">
             <option value="km">ភាសា: ខ្មែរ</option>
             <option value="en">Language: English</option>
-            <option value="zh">ភាសា: ចិន (Chinese)</option>
-            <option value="ja">ភាសា: ជប៉ុន (Japanese)</option>
-            <option value="ko">ភាសា: កូរ៉េ (Korean)</option>
-            <option value="vi">ភាសា: វៀតណាម (Vietnamese)</option>
-            <option value="lo">ភាសា: ឡាវ (Lao)</option>
-            <option value="th">ភាសា: ថៃ (Thai)</option>
-            <option value="my">ភាសា: មីយ៉ាន់ម៉ា (Myanmar)</option>
-            <option value="id">ភាសា: ឥណ្ឌូណេស៊ី (Indonesian)</option>
-            <option value="ms">ភាសា: ម៉ាឡេស៊ី (Malaysian)</option>
-            <option value="tl">ភាសា: ហ្វីលីពីន (Filipino)</option>
-            <option value="ms-BN">ភាសា: ប្រុយណេ (Brunei)</option>
-            <option value="hi">ភាសា: ឥណ្ឌា (Hindi)</option>
-            <option value="bn">ភាសា: បង់ក្លាដែស (Bengali)</option>
-            <option value="ar">ភាសា: អារ៉ាប់ (Arabic)</option>
-            <option value="fr">ភាសា: បារាំង (French)</option>
-            <option value="de">ភាសា: អាល្លឺម៉ង់ (German)</option>
-            <option value="ru">ភាសា: រុស្ស៊ី (Russian)</option>
+            <option value="zh">Chinese</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="vi">Vietnamese</option>
+            <option value="lo">Lao</option>
+            <option value="th">Thai</option>
+            <option value="my">Myanmar</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malaysian</option>
+            <option value="tl">Filipino</option>
+            <option value="hi">Hindi</option>
+            <option value="ar">Arabic</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="ru">Russian</option>
         </select>
 
         <select id="gender">
-            <option value="female">ភេទ: ស្រី</option>
-            <option value="male">ភេទ: ប្រុស</option>
+            <option value="female">ភេទ: ស្រី (Neural)</option>
+            <option value="male">ភេទ: ប្រុស (Neural)</option>
         </select>
 
-        <textarea id="inputText" placeholder="វាយអត្ថបទរបស់អ្នកនៅទីនេះ..."></textarea>
+        <textarea id="textInput" placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
+        <button class="btn-main" onclick="generateTTS()">🎤 បង្កើតសម្លេងពិរោះ</button>
 
-        <span class="speed-label">ល្បឿន:</span>
-        <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
-        <div class="speed-marks">
-            <span>យឺត</span><span>ធម្មតា</span><span>លឿន</span>
+        <div id="previewBox" class="preview-box">
+            <button class="play-btn" onclick="playAudio()">▶</button>
+            <span style="font-size:14px;">មើលសម្លេងជាមុន...</span>
         </div>
-
-        <button class="btn-main" onclick="startTTS()">🎤 បង្កើតសម្លេង</button>
-
-        <div id="preview" class="preview-box">
-            <button class="play-white" onclick="playAudio()">▶</button>
-            <div class="wave"></div>
-            <span style="font-size:12px;">មើលសម្លេងមុន</span>
-        </div>
-
-        <div id="downloadSec" style="display:none; margin-top:30px;">
-            <p style="font-weight:bold; margin-bottom:15px;">ទាញយក:</p>
-            <button class="download-btn" onclick="downloadFile()">MP3</button>
-        </div>
+        <button id="dlBtn" class="download-btn" style="display:none;" onclick="downloadMP3()">ទាញយក MP3</button>
     </div>
 </div>
 
 <script>
-    let currentUrl = "";
-    const API_URL = "https://nytool.onrender.com/api/tts"; // URL របស់អ្នក
+    let audioUrl = "";
+    const API = "https://nytool.onrender.com/api/tts";
 
-    function goTo(id) {
+    function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    async function startTTS() {
-        const text = document.getElementById('inputText').value;
+    async function generateTTS() {
+        const text = document.getElementById('textInput').value;
         const lang = document.getElementById('lang').value;
+        const gender = document.getElementById('gender').value;
         const btn = document.querySelector('.btn-main');
 
-        if(!text) return alert("សូមបញ្ចូលអត្ថបទ!");
-
-        btn.innerText = "⏳ កំពុងដំណើរការ...";
-        btn.disabled = true;
+        if(!text) return alert("សូមបញ្ចូលអត្ថបទ");
+        btn.innerText = "⏳ កំពុងបង្កើត..."; btn.disabled = true;
 
         try {
-            const res = await fetch(API_URL, {
+            const res = await fetch(API, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ text, lang })
+                body: JSON.stringify({ text, lang, gender })
             });
             const data = await res.json();
-            currentUrl = data.audioUrl;
-
-            document.getElementById('preview').style.display = 'flex';
-            document.getElementById('downloadSec').style.display = 'block';
-            btn.innerText = "🎤 បង្កើតសម្លេង";
-            btn.disabled = false;
-        } catch (e) {
-            alert("Error: Server មិនទាន់ឆ្លើយតប។ សូមព្យាយាមម្ដងទៀត! (Render Sleep Mode)");
-            btn.innerText = "🎤 បង្កើតសម្លេង";
-            btn.disabled = false;
-        }
+            if(data.audioUrl) {
+                audioUrl = data.audioUrl;
+                document.getElementById('previewBox').style.display = 'flex';
+                document.getElementById('dlBtn').style.display = 'block';
+            }
+        } catch (e) { alert("Error connecting to server!"); }
+        btn.innerText = "🎤 បង្កើតសម្លេងពិរោះ"; btn.disabled = false;
     }
 
-    function playAudio() {
-        if(currentUrl) new Audio(currentUrl).play();
-    }
-
-    function downloadFile() {
-        if(currentUrl) {
-            const link = document.createElement('a');
-            link.href = currentUrl;
-            link.download = 'voice.mp3';
-            link.click();
-        }
-    }
+    function playAudio() { if(audioUrl) new Audio(audioUrl).play(); }
+    function downloadMP3() { if(audioUrl) window.open(audioUrl, '_blank'); }
 </script>
-
 </body>
 </html>
