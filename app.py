@@ -3,33 +3,46 @@ import uuid
 import asyncio
 import edge_tts
 from flask import Flask, request, jsonify, send_from_directory, render_template
+from flask_cors import CORS
 
 app = Flask(__name__, template_folder='.')
-from flask_cors import CORS
 CORS(app)
 
-# បង្កើត Folder សម្រាប់ទុក File សំឡេងបណ្តោះអាសន្ន
 AUDIO_FOLDER = '/tmp/audio'
 if not os.path.exists(AUDIO_FOLDER):
     os.makedirs(AUDIO_FOLDER)
 
-async def generate_voice(text, lang, file_path):
-    # សំឡេងស្រីមុំ (Neural) ពិរោះបំផុតសម្រាប់ខ្មែរ
-    voice_map = {
-        "km": "km-KH-SreymomNeural",
-        "en": "en-US-AvaNeural",
-        "th": "th-TH-PremwadeeNeural"
-    }
-    selected_voice = voice_map.get(lang, "en-US-AvaNeural")
+# បញ្ជីសំឡេង Neural AI គ្រប់ភាសាដែលអ្នកចង់បាន
+VOICE_DATA = {
+    "km": {"female": "km-KH-SreymomNeural", "male": "km-KH-PisethNeural"},
+    "en": {"female": "en-US-AvaNeural", "male": "en-US-AndrewNeural"},
+    "zh": {"female": "zh-CN-XiaoxiaoNeural", "male": "zh-CN-YunxiNeural"},
+    "ja": {"female": "ja-JP-NanamiNeural", "male": "ja-JP-KeitaNeural"},
+    "ko": {"female": "ko-KR-SunHiNeural", "male": "ko-KR-InJunNeural"},
+    "vi": {"female": "vi-VN-HoaiMyNeural", "male": "vi-VN-NamMinhNeural"},
+    "lo": {"female": "lo-LA-KeotaNeural", "male": "lo-LA-ChanthavongNeural"},
+    "th": {"female": "th-TH-PremwadeeNeural", "male": "th-TH-NiwatNeural"},
+    "my": {"female": "my-MM-NilarNeural", "male": "my-MM-ThihaNeural"},
+    "id": {"female": "id-ID-GadisNeural", "male": "id-ID-ArdiNeural"},
+    "ms": {"female": "ms-MY-YasminNeural", "male": "ms-MY-OsmanNeural"},
+    "tl": {"female": "fil-PH-BlessicaNeural", "male": "fil-PH-AngeloNeural"},
+    "bn": {"female": "bn-BD-NabanitaNeural", "male": "bn-BD-PradeepNeural"},
+    "hi": {"female": "hi-IN-SwaraNeural", "male": "hi-IN-MadhurNeural"},
+    "ar": {"female": "ar-SA-ZariyahNeural", "male": "ar-SA-HamedNeural"},
+    "fr": {"female": "fr-FR-DeniseNeural", "male": "fr-FR-HenriNeural"},
+    "de": {"female": "de-DE-KatjaNeural", "male": "de-DE-ConradNeural"},
+    "ru": {"female": "ru-RU-SvetlanaNeural", "male": "ru-RU-DmitryNeural"}
+}
+
+async def generate_voice(text, lang, gender, file_path):
+    lang_set = VOICE_DATA.get(lang, VOICE_DATA["en"])
+    selected_voice = lang_set.get(gender, lang_set["female"])
     communicate = edge_tts.Communicate(text, selected_voice)
     await communicate.save(file_path)
 
 @app.route('/')
 def index():
-    try:
-        return render_template('index.html')
-    except:
-        return "Server is Live! ប៉ុន្តែរកមិនឃើញ index.html ក្នុង GitHub របស់អ្នកទេ។"
+    return render_template('index.html')
 
 @app.route('/api/tts', methods=['POST'])
 def tts_endpoint():
@@ -37,6 +50,7 @@ def tts_endpoint():
         data = request.json
         text = data.get('text', '')
         lang = data.get('lang', 'km')
+        gender = data.get('gender', 'female')
 
         if not text:
             return jsonify({"error": "No text"}), 400
@@ -44,10 +58,9 @@ def tts_endpoint():
         file_name = f"voice_{uuid.uuid4()}.mp3"
         file_path = os.path.join(AUDIO_FOLDER, file_name)
 
-        # កូដសម្រាប់ដំណើរការ Async ក្នុង Flask
         new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(new_loop)
-        new_loop.run_until_complete(generate_voice(text, lang, file_path))
+        new_loop.run_until_complete(generate_voice(text, lang, gender, file_path))
         new_loop.close()
 
         return jsonify({"audioUrl": f"{request.host_url}download/audio/{file_name}"})
