@@ -4,78 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>imsela - Pro Tools</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #007bff; --purple: #6f42c1; --bg: #fdfaf7; }
-        body { background: var(--bg); font-family: 'Kantumruy Pro', sans-serif; margin: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
-        .page { display: none; } .page.active { display: block; }
-        .bot-badge { background: var(--primary); color: white; border-radius: 50px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-        select, textarea { width: 100%; padding: 15px; border-radius: 50px; border: 1px solid #eee; margin-bottom: 12px; outline: none; font-family: inherit; font-size: 16px; box-sizing: border-box; }
-        textarea { border-radius: 20px; height: 120px; resize: none; }
-        .btn-main { background: var(--primary); color: white; width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: bold; font-size: 18px; cursor: pointer; }
-        .preview-box { background: var(--purple); color: white; border-radius: 25px; padding: 20px; margin: 25px 0; display: none; align-items: center; gap: 15px; }
-        .play-btn { background: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: #ff9800; font-size: 20px; }
-        .download-btn { border: 2px solid #333; background: white; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        :root {
+            --bg: #fdfaf7; --card: #ffffff; --text: #333333;
+            --primary: #007bff; --purple: #6f42c1; --border: #eeeeee;
+            --icon-bg: #e0e0e0;
+        }
+        [data-theme="dark"] {
+            --bg: #121212; --card: #1e1e1e; --text: #ffffff;
+            --border: #333333; --icon-bg: #444444;
+        }
+
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Kantumruy Pro', sans-serif;
+            margin: 0; transition: 0.3s;
+            display: flex; justify-content: center;
+        }
+
+        .app-container { width: 100%; max-width: 480px; min-height: 100vh; padding: 15px; box-sizing: border-box; }
+
+        /* Navbar */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 20px; }
+        .logo img { border-radius: 12px; }
+        .nav-controls { display: flex; gap: 8px; align-items: center; }
+        .btn-ctrl {
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text); padding: 6px 12px; border-radius: 12px;
+            cursor: pointer; font-size: 13px; font-weight: bold;
+        }
+
+        /* Tools Grid */
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .tool-card {
+            background: var(--card); border-radius: 20px; padding: 15px 5px;
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            cursor: pointer; border: none; transition: 0.2s;
+        }
+        .tool-card:active { transform: scale(0.95); }
+        
+        /* Icon Style តាមគំរូ */
+        .icon-box {
+            width: 60px; height: 60px; margin: 0 auto 10px;
+            background-color: var(--icon-bg);
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .icon-box img { width: 70%; height: 70%; object-fit: contain; }
+        .tool-card span { font-size: 11px; font-weight: 500; display: block; line-height: 1.3; }
+
+        /* Page System */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Forms */
+        .back-btn { color: var(--primary); cursor: pointer; margin-bottom: 15px; display: inline-block; font-weight: bold; }
+        select, textarea {
+            width: 100%; padding: 15px; border-radius: 50px; border: 1px solid var(--border);
+            margin-bottom: 12px; background: var(--card); color: var(--text);
+            font-family: inherit; font-size: 16px; box-sizing: border-box; outline: none;
+        }
+        textarea { border-radius: 20px; height: 130px; resize: none; }
+        .btn-main {
+            background: var(--primary); color: white; width: 100%;
+            padding: 18px; border-radius: 50px; border: none;
+            font-weight: bold; font-size: 18px; cursor: pointer;
+        }
+
+        /* Result Area */
+        .preview-box {
+            background: var(--purple); color: white; border-radius: 25px;
+            padding: 20px; margin: 20px 0; display: none; align-items: center; gap: 15px;
+        }
+        .play-btn {
+            background: white; border: none; width: 45px; height: 45px;
+            border-radius: 50%; color: #ff9800; cursor: pointer; font-size: 20px;
+        }
+        .download-btn {
+            background: #28a745; color: white; width: 300px;
+            padding: 15px; border-radius: 15px; border: none;
+            font-weight: bold; cursor: pointer; margin-top: 10px; display: none;
+            text-align: center; text-decoration: none; font-size: 16px;
+        }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="app-container">
+    <nav>
+        <div class="logo">
+            <img src="logo.png" width="35" alt="logo">
+            <span>My Tools</span>
+        </div>
+        <div class="nav-controls">
+            <button class="btn-ctrl" onclick="toggleLang()" id="langBtn">EN</button>
+            <div style="display:flex; align-items:center; gap:5px; background:var(--card); padding:5px 10px; border-radius:15px; border:1px solid var(--border);">
+                <span style="font-size:12px;" class="ui-text" data-kh="ពន្លឺ" data-en="Light">Light</span>
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()" style="cursor:pointer;">
+            </div>
+        </div>
+    </nav>
+
     <div id="home" class="page active">
-        <h1 onclick="showPage('tts')" style="cursor:pointer; background:white; padding:30px; border-radius:20px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.05);">🎤 Tool: អត្ថបទទៅសម្លេង</h1>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="showPage('tts')">
+                <div class="icon-box">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png" alt="TTS Icon">
+                </div>
+                <span class="ui-text" data-kh="អក្សរទៅសម្លេង" data-en="Text to Speech">អក្សរទៅសម្លេង</span>
+            </div>
+            
+            <div class="tool-card">
+                <div class="icon-box">
+                    <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="PDF Icon">
+                </div>
+                <span class="ui-text" data-kh="រូបភាពទៅ PDF" data-en="Image to PDF">រូបភាពទៅ PDF</span>
+            </div>
+
+            <div class="tool-card">
+                <div class="icon-box">
+                    <img src="https://cdn-icons-png.flaticon.com/512/241/241528.png" alt="QR Icon">
+                </div>
+                <span class="ui-text" data-kh="បង្កើត QR" data-en="QR Generator">បង្កើត QR</span>
+            </div>
+        </div>
     </div>
 
     <div id="tts" class="page">
-        <div onclick="showPage('home')" style="cursor:pointer; color:#888; margin-bottom:15px;">← ត្រឡប់</div>
-        <h2>អត្ថបទទៅសម្លេង (TTS)</h2>
-        <div class="bot-badge">🤖 Bot AI (Neural)</div>
+        <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-kh="ត្រឡប់" data-en="Back">ត្រឡប់</span></span>
+        <h2 class="ui-text" data-kh="អក្សរទៅសម្លេង" data-en="Text to Speech">អក្សរទៅសម្លេង</h2>
 
-        <select id="lang">
-            <option value="km">ភាសា: ខ្មែរ</option>
-            <option value="en">Language: English</option>
-            <option value="th">Language: Thai</option>
-            <option value="zh">Chinese</option>
-            <option value="ja">Japanese</option>
-            <option value="ko">Korean</option>
-            <option value="vi">Vietnamese</option>
-            <option value="ar">Arabic</option>
-            <option value="fr">French</option>
+        <select id="langSel">
+            <option value="km">ខ្មែរ (Khmer)</option>
+            <option value="en">English</option>
+            </select>
+
+        <select id="genderSel">
+            <option value="male" selected class="ui-text" data-kh="ភេទ: ប្រុស (Default)" data-en="Gender: Male (Default)">ភេទ: ប្រុស (Default)</option>
+            <option value="female" class="ui-text" data-kh="ភេទ: ស្រី" data-en="Gender: Female">ភេទ: ស្រី</option>
         </select>
 
-        <select id="gender">
-            <option value="male" selected>ភេទ: ប្រុស (លោក ពិសិដ្ឋ)</option>
-            <option value="female">ភេទ: ស្រី (កញ្ញា ស្រីមុំ)</option>
-        </select>
+        <textarea id="textIn" class="ui-placeholder" data-kh-ph="វាយអត្ថបទនៅទីនេះ..." data-en-ph="Type your text here..." placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
+        
+        <button class="btn-main ui-text" onclick="doTTS()" id="genBtn" data-kh="🎤 បង្កើតសម្លេង" data-en="🎤 Generate Voice">🎤 បង្កើតសម្លេង</button>
 
-        <textarea id="textInput" placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
-        <button class="btn-main" onclick="generateTTS()">🎤 បង្កើតសម្លេង AI</button>
-
-        <div id="previewBox" class="preview-box">
-            <button class="play-btn" onclick="playAudio()">▶</button>
-            <span style="font-size:14px;">កំពុងត្រៀមសម្លេង...</span>
+        <div id="pbox" class="preview-box">
+            <button class="play-btn" onclick="playAud()">▶</button>
+            <span class="ui-text" data-kh="មើលសម្លេងជាមុន..." data-en="Previewing audio...">មើលសម្លេងជាមុន...</span>
         </div>
-        <button id="dlBtn" class="download-btn" style="display:none;" onclick="downloadMP3()">ទាញយក MP3</button>
+
+        <a id="dlBtn" class="download-btn ui-text" data-kh="📥 ទាញយក MP3" data-en="📥 Download MP3" target="_blank">📥 ទាញយក MP3</a>
     </div>
 </div>
 
 <script>
-    let audioUrl = "";
+    let currentAudUrl = "";
     const API = "https://nytool.onrender.com/api/tts";
+
+    function toggleTheme() {
+        const isDark = document.getElementById('themeToggle').checked;
+        document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleLang() {
+        const btn = document.getElementById('langBtn');
+        const isKh = btn.innerText === 'KH';
+        btn.innerText = isKh ? 'EN' : 'KH';
+
+        document.querySelectorAll('.ui-text').forEach(el => {
+            el.innerText = isKh ? el.dataset.kh : el.dataset.en;
+        });
+
+        document.querySelectorAll('.ui-placeholder').forEach(el => {
+            el.placeholder = isKh ? el.dataset.khPh : el.dataset.enPh;
+        });
+    }
 
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    async function generateTTS() {
-        const text = document.getElementById('textInput').value;
-        const lang = document.getElementById('lang').value;
-        const gender = document.getElementById('gender').value;
-        const btn = document.querySelector('.btn-main');
+    async function doTTS() {
+        const text = document.getElementById('textIn').value;
+        const lang = document.getElementById('langSel').value;
+        const gender = document.getElementById('genderSel').value;
+        const btn = document.getElementById('genBtn');
 
-        if(!text) return alert("សូមបញ្ចូលអត្ថបទ");
-        btn.innerText = "⏳ កំពុងបង្កើត..."; btn.disabled = true;
+        if(!text) return;
+
+        btn.disabled = true;
+        btn.innerText = "...";
 
         try {
             const res = await fetch(API, {
@@ -85,16 +208,21 @@
             });
             const data = await res.json();
             if(data.audioUrl) {
-                audioUrl = data.audioUrl;
-                document.getElementById('previewBox').style.display = 'flex';
-                document.getElementById('dlBtn').style.display = 'block';
+                currentAudUrl = data.audioUrl;
+                document.getElementById('pbox').style.display = 'flex';
+                const dl = document.getElementById('dlBtn');
+                dl.href = currentAudUrl;
+                dl.style.display = 'block';
+                dl.setAttribute('download', 'voice.mp3');
             }
         } catch (e) { alert("Error connecting to server!"); }
-        btn.innerText = "🎤 បង្កើតសម្លេង AI"; btn.disabled = false;
+        finally {
+            btn.disabled = false;
+            btn.innerText = document.getElementById('langBtn').innerText === 'EN' ? "🎤 បង្កើតសម្លេង" : "🎤 Generate Voice";
+        }
     }
 
-    function playAudio() { if(audioUrl) new Audio(audioUrl).play(); }
-    function downloadMP3() { if(audioUrl) window.open(audioUrl, '_blank'); }
+    function playAud() { if(currentAudUrl) new Audio(currentAudUrl).play(); }
 </script>
 </body>
 </html>
