@@ -23,45 +23,37 @@
 
 <div class="app-container">
     <div id="home" class="page active">
-        <h1 onclick="showPage('tts')" style="cursor:pointer; background:white; padding:20px; border-radius:20px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.05);">🎤 អត្ថបទទៅសម្លេង</h1>
+        <h1 onclick="showPage('tts')" style="cursor:pointer; background:white; padding:30px; border-radius:20px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.05);">🎤 Tool: អត្ថបទទៅសម្លេង</h1>
     </div>
 
     <div id="tts" class="page">
         <div onclick="showPage('home')" style="cursor:pointer; color:#888; margin-bottom:15px;">← ត្រឡប់</div>
         <h2>អត្ថបទទៅសម្លេង (TTS)</h2>
-        <div class="bot-badge">🤖 Bot AI</div>
+        <div class="bot-badge">🤖 Bot AI (Neural)</div>
 
         <select id="lang">
             <option value="km">ភាសា: ខ្មែរ</option>
             <option value="en">Language: English</option>
+            <option value="th">Language: Thai</option>
             <option value="zh">Chinese</option>
             <option value="ja">Japanese</option>
             <option value="ko">Korean</option>
             <option value="vi">Vietnamese</option>
-            <option value="lo">Lao</option>
-            <option value="th">Thai</option>
-            <option value="my">Myanmar</option>
-            <option value="id">Indonesian</option>
-            <option value="ms">Malaysian</option>
-            <option value="tl">Filipino</option>
-            <option value="hi">Hindi</option>
             <option value="ar">Arabic</option>
             <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="ru">Russian</option>
         </select>
 
         <select id="gender">
-            <option value="female">ភេទ: ស្រី (Neural)</option>
-            <option value="male">ភេទ: ប្រុស (Neural)</option>
+            <option value="male" selected>ភេទ: ប្រុស (លោក ពិសិដ្ឋ)</option>
+            <option value="female">ភេទ: ស្រី (កញ្ញា ស្រីមុំ)</option>
         </select>
 
         <textarea id="textInput" placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
-        <button class="btn-main" onclick="generateTTS()">🎤 បង្កើតសម្លេងពិរោះ</button>
+        <button class="btn-main" onclick="generateTTS()">🎤 បង្កើតសម្លេង AI</button>
 
         <div id="previewBox" class="preview-box">
             <button class="play-btn" onclick="playAudio()">▶</button>
-            <span style="font-size:14px;">មើលសម្លេងជាមុន...</span>
+            <span style="font-size:14px;">កំពុងត្រៀមសម្លេង...</span>
         </div>
         <button id="dlBtn" class="download-btn" style="display:none;" onclick="downloadMP3()">ទាញយក MP3</button>
     </div>
@@ -98,7 +90,7 @@
                 document.getElementById('dlBtn').style.display = 'block';
             }
         } catch (e) { alert("Error connecting to server!"); }
-        btn.innerText = "🎤 បង្កើតសម្លេងពិរោះ"; btn.disabled = false;
+        btn.innerText = "🎤 បង្កើតសម្លេង AI"; btn.disabled = false;
     }
 
     function playAudio() { if(audioUrl) new Audio(audioUrl).play(); }
