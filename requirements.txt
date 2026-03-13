@@ -1,6 +1,4 @@
 flask
 flask-cors
 edge-tts
-qrcode
-pillow
 gunicorn
