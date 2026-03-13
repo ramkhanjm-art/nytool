@@ -1,0 +1,6 @@
+flask
+flask-cors
+gtts
+qrcode
+pillow
+gunicorn
