@@ -3,72 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ny Tools - 21 Languages</title>
+    <title>Ny Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --purple: #7a5af5; --red: #ff4d4d; --blue: #007bff; }
-        body { font-family: 'Kantumruy Pro', sans-serif; background: #fdfaf7; margin: 0; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 480px; padding: 15px; }
+        :root { --primary: #7a5af5; --danger: #ff4d4d; --bg: #fdfaf7; }
+        body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; padding: 20px; box-sizing: border-box; }
         
-        /* PDF UI Style */
-        .upload-area { border: 2px dashed #ccc; border-radius: 25px; padding: 30px; text-align: center; background: white; cursor: pointer; margin-top: 20px; }
-        .upload-area img { width: 70px; margin-bottom: 10px; }
-        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-        .preview-item { position: relative; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #eee; }
-        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* TTS UI */
-        select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
-        .gender-select { display: flex; gap: 10px; margin-bottom: 15px; }
-        .gender-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 10px; background: white; cursor: pointer; text-align: center; }
-        .gender-btn.active { border-color: var(--blue); background: #e7f3ff; color: var(--blue); }
+        /* PDF Upload Area */
+        .upload-card { border: 2px dashed #ccc; border-radius: 25px; padding: 40px 20px; text-align: center; background: white; cursor: pointer; margin-bottom: 20px; }
+        .upload-card img { width: 80px; margin-bottom: 10px; }
+        .upload-card h3 { font-size: 18px; margin: 10px 0; }
+        .upload-card p { font-size: 14px; color: #888; margin: 0; }
 
-        .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
+        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .preview-item { position: relative; height: 100px; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-btn { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+
+        /* Buttons */
+        .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; transition: 0.3s; }
         .btn-purple { background: linear-gradient(to right, #7a5af5, #9d7cfd); color: white; }
-        .btn-red { background: white; color: var(--red); border: 2px solid var(--red); }
+        .btn-outline { background: white; color: var(--danger); border: 2px solid var(--danger); }
+        
+        /* TTS Layout */
+        select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; font-family: inherit; box-sizing: border-box; }
+        .gender-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .gender-opt { flex: 1; background: white; padding: 10px; border-radius: 10px; border: 1px solid #ddd; text-align: center; cursor: pointer; }
+        .gender-opt.active { border-color: #007bff; background: #e7f3ff; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3 style="color: var(--blue);">Text to Speech (21 Languages)</h3>
+    <div class="app-container">
         <select id="langSel">
-            <option value="km">Khmer (ខ្មែរ)</option><option value="en">English</option>
-            <option value="zh-CN">Chinese</option><option value="ja">Japanese</option>
-            <option value="ko">Korean</option><option value="th">Thai</option>
-            <option value="vi">Vietnamese</option><option value="lo">Lao</option>
-            <option value="my">Myanmar</option><option value="tl">Filipino</option>
-            <option value="ms">Malay</option><option value="id">Indonesian</option>
-            <option value="bn">Bengali</option><option value="hi">Hindi</option>
-            <option value="ar">Arabic</option><option value="pt">Portuguese</option>
-            <option value="fr">French</option><option value="de">German</option>
-            <option value="es">Spanish</option><option value="ru">Russian</option>
-            <option value="it">Italian</option>
-        </select>
-        
-        <div class="gender-select">
-            <div class="gender-btn active" id="fBtn" onclick="setGender('female')">ស្រី (Female)</div>
-            <div class="gender-btn" id="mBtn" onclick="setGender('male')">ប្រុស (Male)</div>
+            <option value="km">ខ្មែរ (Khmer)</option>
+            <option value="en" selected>English</option>
+            </select>
+        <div class="gender-box">
+            <div class="gender-opt active" id="fBtn" onclick="setGender('female')">ស្រី (Female)</div>
+            <div class="gender-opt" id="mBtn" onclick="setGender('male')">ប្រុស (Male)</div>
         </div>
-
         <textarea id="textIn" rows="4" placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
-        <button class="btn btn-purple" onclick="doTTS()" id="ttsBtn">បង្កើតសំឡេង</button>
+        <button class="btn btn-purple" onclick="doTTS()">បង្កើតសំឡេង</button>
 
-        <hr>
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #ddd;">
 
-        <div class="upload-area" onclick="document.getElementById('imgIn').click()">
+        <div class="upload-card" onclick="document.getElementById('imgIn').click()">
             <img src="https://cdn-icons-png.flaticon.com/512/685/685655.png">
-            <p>ចុចដើម្បីបញ្ចូលរូបភាព</p>
+            <h3>ចុច ឬអូសរូបភាពមកទីនេះ</h3>
+            <p>គាំទ្រ: JPG, PNG, WEBP • អាចជ្រើសរើសបានច្រើន</p>
             <input type="file" id="imgIn" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
         </div>
+
         <div id="preview" class="preview-grid"></div>
+
         <button class="btn btn-purple" onclick="generatePDF()">📄 បំប្លែងទៅ PDF</button>
-        <button class="btn btn-red" onclick="clearPDF()">🗑️ សម្អាតទាំងអស់</button>
+        <button class="btn btn-outline" onclick="clearAll()">🗑️ សម្អាតទាំងអស់</button>
     </div>
 
     <script>
+        const API = "https://nytool.onrender.com"; //
         let currentGender = 'female';
         let files = [];
-        const API = "https://nytool.onrender.com"; // កែតាម URL របស់អ្នក
 
         function setGender(g) {
             currentGender = g;
@@ -77,18 +74,17 @@
         }
 
         async function doTTS() {
-            const text = document.getElementById('textIn').value;
+            const text = document.getElementById('textIn').value.trim();
             if(!text) return;
-            const btn = document.getElementById('ttsBtn');
-            btn.innerText = "កំពុងបង្កើត...";
-            const res = await fetch(`${API}/api/tts`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ text, lang: document.getElementById('langSel').value, gender: currentGender })
-            });
-            const data = await res.json();
-            if(data.audioUrl) new Audio(API + data.audioUrl).play();
-            btn.innerText = "បង្កើតសំឡេង";
+            try {
+                const res = await fetch(`${API}/api/tts`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text, lang: document.getElementById('langSel').value, gender: currentGender })
+                });
+                const data = await res.json();
+                if(data.audioUrl) new Audio(API + data.audioUrl).play();
+            } catch(e) { alert("Error connecting to server!"); }
         }
 
         function handleFiles(fs) { files = [...files, ...Array.from(fs)]; renderPreview(); }
@@ -98,13 +94,15 @@
                 const rd = new FileReader();
                 rd.onload = (e) => {
                     const d = document.createElement('div'); d.className = 'preview-item';
-                    d.innerHTML = `<img src="${e.target.result}"><button onclick="files.splice(${i},1);renderPreview();" style="position:absolute;top:2px;right:2px;background:red;color:white;border:none;border-radius:50%;cursor:pointer;">✕</button>`;
+                    d.innerHTML = `<img src="${e.target.result}"><button class="remove-btn" onclick="files.splice(${i},1);renderPreview();">✕</button>`;
                     p.appendChild(d);
                 };
                 rd.readAsDataURL(f);
             });
         }
+
         async function generatePDF() {
+            if(!files.length) return;
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             for(let i=0; i<files.length; i++) {
                 if(i > 0) doc.addPage();
@@ -113,7 +111,7 @@
             }
             doc.save("Ny-Tools.pdf");
         }
-        function clearPDF() { files = []; renderPreview(); }
+        function clearAll() { files = []; renderPreview(); }
     </script>
 </body>
 </html>
