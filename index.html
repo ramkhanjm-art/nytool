@@ -5,14 +5,6 @@
     <title>Ny Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="./manifest.json">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
-</script>
 <link rel="icon" type="image/jpg" href="weblogo.jpg">
     <style>
         :root {
@@ -295,6 +287,12 @@ installBtn.addEventListener('click', async () => {
     deferredPrompt = null;
   }
 });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js') // ប្រើ ./ ពីមុខឈ្មោះ file
+    .then(() => console.log("Service Worker Registered"))
+    .catch(err => console.log("Service Worker Failed", err));
+}
+
 
 </script>
 </body> </html>
