@@ -8,12 +8,10 @@ import edge_tts
 app = Flask(__name__)
 CORS(app)
 
-# បង្កើត folder សម្រាប់រក្សាទុកសំឡេង
 AUDIO_DIR = "static/audio"
-if not os.path.exists(AUDIO_DIR):
-    os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(AUDIO_DIR, exist_ok=True)
 
-# បញ្ជីសំឡេងទាំង ២១ ភាសា (ប្រុស និង ស្រី)
+# បញ្ជីសំឡេងប្រុស/ស្រី សម្រាប់ភាសាទាំង ២១
 VOICE_DATA = {
     'km': {'female': 'km-KH-SreymomNeural', 'male': 'km-KH-PisethNeural'},
     'en': {'female': 'en-US-AriaNeural', 'male': 'en-US-GuyNeural'},
@@ -51,10 +49,7 @@ def tts_route():
         text = data.get('text', '').strip()
         lang = data.get('lang', 'en')
         gender = data.get('gender', 'female')
-
-        if not text:
-            return jsonify({"error": "No text"}), 400
-
+        
         filename = f"{uuid.uuid4()}.mp3"
         filepath = os.path.join(AUDIO_DIR, filename)
 
@@ -62,7 +57,6 @@ def tts_route():
         asyncio.set_event_loop(loop)
         loop.run_until_complete(save_voice(text, lang, gender, filepath))
         loop.close()
-
         return jsonify({"audioUrl": f"/static/audio/{filename}"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
