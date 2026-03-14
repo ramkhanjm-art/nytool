@@ -1,7 +1,4 @@
-import os
-import uuid
-import asyncio
-import edge_tts
+import os, uuid, asyncio, edge_tts
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 
@@ -25,15 +22,15 @@ VOICE_DATA = {
     "tl": {"male": "fil-PH-AngeloNeural", "female": "fil-PH-BlessicaNeural"},
     "ms": {"male": "ms-MY-OsmanNeural", "female": "ms-MY-YasminNeural"},
     "id": {"male": "id-ID-ArdiNeural", "female": "id-ID-GadisNeural"},
-    "fr": {"male": "fr-FR-HenriNeural", "female": "fr-FR-DeniseNeural"},
-    "ru": {"male": "ru-RU-DmitryNeural", "female": "ru-RU-SvetlanaNeural"},
-    "ar": {"male": "ar-SA-HamedNeural", "female": "ar-SA-ZariyahNeural"},
+    "br": {"male": "ms-MY-OsmanNeural", "female": "ms-MY-YasminNeural"},
     "bn": {"male": "bn-BD-PradeepNeural", "female": "bn-BD-NabanitaNeural"},
-    "pt": {"male": "pt-PT-DuarteNeural", "female": "pt-PT-RaquelNeural"},
     "hi": {"male": "hi-IN-MadhurNeural", "female": "hi-IN-SwaraNeural"},
-    "es": {"male": "es-ES-AlvaroNeural", "female": "es-ES-ElviraNeural"},
+    "ar": {"male": "ar-SA-HamedNeural", "female": "ar-SA-ZariyahNeural"},
+    "pt": {"male": "pt-PT-DuarteNeural", "female": "pt-PT-RaquelNeural"},
+    "fr": {"male": "fr-FR-HenriNeural", "female": "fr-FR-DeniseNeural"},
     "de": {"male": "de-DE-ConradNeural", "female": "de-DE-KatjaNeural"},
-    "br": {"male": "ms-MY-OsmanNeural", "female": "ms-MY-YasminNeural"} # Brunei uses Malay
+    "es": {"male": "es-ES-AlvaroNeural", "female": "es-ES-ElviraNeural"},
+    "ru": {"male": "ru-RU-DmitryNeural", "female": "ru-RU-SvetlanaNeural"}
 }
 
 async def generate_voice(text, lang, gender, file_path):
@@ -52,21 +49,21 @@ def tts_endpoint():
         data = request.json
         text, lang, gender = data.get('text', ''), data.get('lang', 'km'), data.get('gender', 'male')
         if not text: return jsonify({"error": "No text"}), 400
+        
         file_name = f"voice_{uuid.uuid4()}.mp3"
         file_path = os.path.join(AUDIO_FOLDER, file_name)
-        
+
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(generate_voice(text, lang, gender, file_path))
         loop.close()
-        
+
         return jsonify({"audioUrl": f"{request.host_url}download/audio/{file_name}"})
     except Exception as e: return jsonify({"error": str(e)}), 500
 
 @app.route('/download/audio/<filename>')
 def download_audio(filename):
-    # as_attachment=True ជួយឱ្យ Browser ដឹងថាត្រូវដោនឡូត មិនមែនគ្រាន់តែបើកស្ដាប់
-    return send_from_directory(AUDIO_FOLDER, filename, as_attachment=True)
+    return send_from_directory(AUDIO_FOLDER, filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
