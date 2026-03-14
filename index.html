@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="https://nytool.onrender.com/manifest.json">
+    <link rel="manifest" href='data:application/manifest+json,{"short_name":"NyTool","name":"Ny Tools","start_url":".","display":"standalone","icons":[{"src":"https://nytool.onrender.com/icon.png","sizes":"192x192","type":"image/png"}]}'>
+
 
 <link rel="icon" type="image/jpg" href="weblogo.jpg">
     <style>
@@ -268,15 +269,27 @@
             alert("Sharing failed!");
         }
     }
-    let deferredPrompt;
+   // បង្ហាញប៊ូតុងភ្លាមៗតែម្តង
 const installBtn = document.getElementById('install-button');
+installBtn.style.display = 'inline-flex'; 
+
+let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // បង្ហាញប៊ូតុងពេលវាអាច Install បាន
-  installBtn.style.display = 'inline-flex'; 
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log("PWA ready to install");
 });
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+    } else {
+        // បើ Browser មិនទាន់អនុញ្ញាត ឱ្យវាប្រាប់អ្នកប្រើប្រាស់
+        alert("សូមចុចលើសញ្ញាចុច 3 (⋮) នៅជ្រុងខាងលើ រួចជ្រើសរើសយកពាក្យថា Install App ឬ Add to Home Screen");
+    }
+});
+
 
 installBtn.addEventListener('click', async () => {
   if (deferredPrompt) {
