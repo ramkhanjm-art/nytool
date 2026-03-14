@@ -1,113 +1,79 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="km">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root {
-            --bg: #fdfaf7; --card: #ffffff; --text: #333333;
-            --primary: #007bff; --purple: #6f42c1; --border: #eeeeee;
-            --icon-bg: #e0e0e0;
-        }
-        [data-theme="dark"] {
-            --bg: #121212; --card: #1e1e1e; --text: #ffffff;
-            --border: #333333; --icon-bg: #444444;
-        }
-        body {
-            background-color: var(--bg); color: var(--text);
-            font-family: 'Kantumruy Pro', sans-serif;
-            margin: 0; transition: 0.3s;
-            display: flex; justify-content: center;
-        }
+        :root { --bg: #fdfaf7; --card: #ffffff; --text: #333; --primary: #007bff; --purple: #6f42c1; --border: #eee; }
+        [data-theme="dark"] { --bg: #121212; --card: #1e1e1e; --text: #fff; --border: #333; }
+        body { background: var(--bg); color: var(--text); font-family: 'Kantumruy Pro', sans-serif; margin: 0; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 480px; min-height: 100vh; padding: 15px; box-sizing: border-box; }
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
         .logo { font-weight: bold; font-size: 22px; color: var(--primary); }
-        .nav-controls { display: flex; gap: 10px; }
-        .switch-btn {
-            background: var(--card); border: 1px solid var(--border);
-            color: var(--text); padding: 6px 15px; border-radius: 20px;
-            cursor: pointer; font-size: 13px; font-weight: bold;
-        }
-        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .tool-card {
-            background: var(--card); border-radius: 20px; padding: 15px 5px;
-            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            cursor: pointer; transition: 0.2s;
-        }
-        .tool-card:active { transform: scale(0.95); }
-        .icon-box {
-            width: 60px; height: 60px; margin: 0 auto 10px;
-            background-color: var(--icon-bg); border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .icon-box img { width: 65%; height: 65%; object-fit: contain; }
-        .tool-card span { font-size: 11px; font-weight: 500; display: block; line-height: 1.3; }
-        .page { display: none; }
-        .page.active { display: block; }
+        .switch-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 20px; cursor: pointer; }
+        
+        /* Home Grid */
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .tool-card { background: var(--card); border-radius: 20px; padding: 15px 5px; text-align: center; cursor: pointer; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .icon-box { width: 50px; height: 50px; margin: 0 auto 10px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .icon-box img { width: 60%; }
+        .tool-card span { font-size: 11px; font-weight: 500; }
+
+        .page { display: none; } .page.active { display: block; }
         .back-btn { color: var(--primary); cursor: pointer; margin-bottom: 15px; display: inline-block; font-weight: bold; }
-        select, textarea {
-            width: 100%; padding: 12px; border-radius: 15px; border: 1px solid var(--border);
-            margin-bottom: 12px; background: var(--card); color: var(--text);
-            font-family: inherit; box-sizing: border-box; outline: none;
-        }
-        .btn-main {
-            background: var(--primary); color: white; width: 100%;
-            padding: 18px; border-radius: 50px; border: none;
-            font-weight: bold; font-size: 17px; cursor: pointer;
-        }
-        .result-box {
-            background: var(--purple); color: white; border-radius: 25px;
-            padding: 15px; margin-top: 20px; display: none; flex-direction: column; gap: 10px;
-        }
-        .res-controls { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .action-btns { display: flex; gap: 8px; }
-        .dl-btn, .share-btn { 
-            padding: 10px 15px; border-radius: 12px; text-decoration: none; 
-            font-weight: bold; font-size: 13px; border: none; cursor: pointer;
-        }
-        .dl-btn { background: #28a745; color: white; }
-        .share-btn { background: #00acee; color: white; }
+        
+        select, textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; background: var(--card); color: var(--text); font-family: inherit; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; }
+
+        /* Image to PDF Styles (ដូចគំរូ) */
+        .upload-area { border: 2px dashed #ccc; border-radius: 20px; padding: 40px 20px; text-align: center; background: #f9f9f9; cursor: pointer; margin-bottom: 15px; }
+        .upload-area img { width: 70px; margin-bottom: 10px; }
+        .preview-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .preview-item { position: relative; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-btn { position: absolute; top: 5px; right: 5px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+        .btn-pdf-grad { background: linear-gradient(90deg, #6a5af9, #d66efd); margin-bottom: 10px; }
+        .btn-clear-out { background: white; color: #ff4d4d; border: 2px solid #ff4d4d; }
+
+        /* QR Styles */
+        .qr-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0; }
+        .tab { padding: 8px 15px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; white-space: nowrap; background: var(--card); }
+        .tab.active { background: var(--primary); color: white; }
+        .qr-input-group { display: none; } .qr-input-group.active { display: block; }
+        #qr-canvas { max-width: 100%; margin-top: 15px; border-radius: 10px; border: 1px solid var(--border); }
     </style>
 </head>
 <body data-theme="light">
-
 <div class="app-container">
-    <nav>
-        <div class="logo">Ny Tools</div>
-        <div class="nav-controls">
-            <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
-            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
-        </div>
-    </nav>
+    <nav><div class="logo">Ny Tools</div><div><button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button> <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">☀️</button></div></nav>
 
     <div id="home" class="page active">
         <div class="tools-grid">
-            <div class="tool-card" onclick="showPage('tts')">
-                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png"></div>
-                <span class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span>
-            </div>
-            </div>
+            <div class="tool-card" onclick="showPage('tts')"><div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png"></div><span>Text to Speech</span></div>
+            <div class="tool-card" onclick="showPage('pdf')"><div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/337/337946.png"></div><span>Image to PDF</span></div>
+            <div class="tool-card" onclick="showPage('qr')"><div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/241/241528.png"></div><span>QR Generator</span></div>
+        </div>
     </div>
 
     <div id="tts" class="page">
-        <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
-        <h2 class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</h2>
-
+        <span class="back-btn" onclick="showPage('home')">← Back</span>
         <select id="langSel">
-            <option value="km">ខ្មែរ (Khmer)</option>
+            <option value="km" selected>ខ្មែរ (Khmer)</option>
             <option value="en">English</option>
             <option value="zh">Chinese (中文)</option>
             <option value="ja">Japanese (日本語)</option>
             <option value="ko">Korean (한국어)</option>
             <option value="th">Thai (ไทย)</option>
             <option value="vi">Vietnamese (Tiếng Việt)</option>
-            <option value="lo">Lao (ລາវ)</option>
+            <option value="lo">Lao (ລາວ)</option>
             <option value="my">Myanmar (မြန်မာ)</option>
             <option value="tl">Filipino (Tagalog)</option>
             <option value="ms">Malay (Bahasa Melayu)</option>
             <option value="id">Indonesian (Bahasa Indonesia)</option>
-            <option value="br">Brunei (Malay)</option>
             <option value="bn">Bengali (বাংলা)</option>
             <option value="hi">Hindi (हिन्दी)</option>
             <option value="ar">Arabic (العربية)</option>
@@ -116,103 +82,150 @@
             <option value="de">German (Deutsch)</option>
             <option value="es">Spanish (Español)</option>
             <option value="ru">Russian (Русский)</option>
+            <option value="it">Italian (Italiano)</option>
         </select>
-
-        <select id="genderSel">
-            <option value="male" class="ui-text" data-en="Male" data-kh="ភេទ: ប្រុស">Male</option>
-            <option value="female" class="ui-text" data-en="Female" data-kh="ភេទ: ស្រី">Female</option>
-        </select>
-
-        <textarea id="textIn" class="ui-placeholder" data-en-ph="Type your text here..." data-kh-ph="វាយអត្ថបទនៅទីនេះ..." placeholder="Type your text here..."></textarea>
-        <button class="btn-main ui-text" onclick="doTTS()" id="genBtn" data-en="Generate Voice" data-kh="បង្កើតសម្លេង">Generate Voice</button>
-
-        <div id="resBox" class="result-box">
-            <div class="res-controls">
-                <button onclick="playAud()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; color:#6f42c1; cursor:pointer; font-size:20px;">▶</button>
-                <div class="action-btns">
-                    <button class="share-btn ui-text" data-en="Share" data-kh="ចែករំលែក" onclick="shareVoice()">Share</button>
-                    <a id="dlLink" class="dl-btn ui-text" data-en="Download" data-kh="ទាញយក" target="_blank">Download</a>
-                </div>
-            </div>
+        <select id="genderSel"><option value="male">Male</option><option value="female">Female</option></select>
+        <textarea id="textIn" placeholder="វាយអត្ថបទនៅទីនេះ..." rows="5"></textarea>
+        <button class="btn-main" onclick="doTTS()" id="genBtn">Generate Voice</button>
+        <div id="resBox" style="display:none; margin-top:15px; background:var(--purple); padding:15px; border-radius:20px; display:none; align-items:center; justify-content:space-between;">
+            <button onclick="playAud()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; color:var(--purple); cursor:pointer; font-size:20px;">▶</button>
+            <button onclick="shareVoice()" style="background:#00acee; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:bold; cursor:pointer;">Share Voice</button>
         </div>
+    </div>
+
+    <div id="pdf" class="page">
+        <span class="back-btn" onclick="showPage('home')">← Back</span>
+        <div class="upload-area" onclick="document.getElementById('imgInput').click()">
+            <img src="https://cdn-icons-png.flaticon.com/512/3344/3344335.png">
+            <h3 class="ui-text" data-en="Click or Drag images" data-kh="ចុច ឬអូសរូបភាពមកទីនេះ">ចុច ឬអូសរូបភាពមកទីនេះ</h3>
+            <p style="font-size:12px; color:#888;">គាំទ្រ: JPG, PNG, WEBP</p>
+            <input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
+        </div>
+        <p id="file-count" style="text-align:center; font-size:14px; margin-bottom:10px;">0 រូបភាពបានជ្រើសរើស</p>
+        <div id="preview-container" class="preview-list"></div>
+        <button class="btn-main btn-pdf-grad" onclick="generatePDF()">📄 បំប្លែងទៅ PDF (Compressed)</button>
+        <button class="btn-main btn-clear-out" onclick="clearPDF()">🗑️ សម្អាតទាំងអស់</button>
+    </div>
+
+    <div id="qr" class="page">
+        <span class="back-btn" onclick="showPage('home')">← Back</span>
+        <div class="qr-tabs">
+            <div class="tab active" onclick="setQR('text', this)">Text</div>
+            <div class="tab" onclick="setQR('link', this)">Link</div>
+            <div class="tab" onclick="setQR('wifi', this)">WiFi</div>
+            <div class="tab" onclick="setQR('mail', this)">Email</div>
+        </div>
+        <div id="qr-text" class="qr-input-group active"><textarea id="val-text" placeholder="Enter text..."></textarea></div>
+        <div id="qr-link" class="qr-input-group"><input type="text" id="val-link" placeholder="https://example.com"></div>
+        <div id="qr-wifi" class="qr-input-group">
+            <input type="text" id="wifi-ssid" placeholder="WiFi Name (SSID)">
+            <input type="text" id="wifi-pass" placeholder="Password">
+        </div>
+        <div id="qr-mail" class="qr-input-group">
+            <input type="text" id="mail-to" placeholder="Email Address">
+            <input type="text" id="mail-sub" placeholder="Subject">
+            <textarea id="mail-body" placeholder="Message content..."></textarea>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="qr-size" value="300" style="flex:1" placeholder="Size (px)">
+            <input type="file" id="logo-input" accept="image/*" style="flex:1; font-size:10px; padding:5px;">
+        </div>
+        <button class="btn-main" onclick="generateQR()">Generate QR Code</button>
+        <center><canvas id="qr-canvas"></canvas><br><button id="dl-qr" class="btn-main" style="display:none; margin-top:10px; background:#28a745" onclick="downloadQR()">Download PNG</button></center>
+        <div id="qr-hidden" style="display:none"></div>
     </div>
 </div>
 
 <script>
-    let audioUrl = "";
-    const API = "https://nytool.onrender.com/api/tts";
+    let audioUrl = ""; let selectedFiles = []; let currentQR = 'text';
 
-    function toggleLang() {
-        const btn = document.getElementById('langBtn');
-        const isEn = btn.innerText === 'KH';
-        btn.innerText = isEn ? 'EN' : 'KH';
-        document.querySelectorAll('.ui-text').forEach(el => el.innerText = isEn ? el.dataset.kh : el.dataset.en);
-        document.querySelectorAll('.ui-placeholder').forEach(el => el.placeholder = isEn ? el.dataset.khPh : el.dataset.enPh);
-    }
+    function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function toggleTheme() { const b = document.body; const isL = b.getAttribute('data-theme') === 'light'; b.setAttribute('data-theme', isL ? 'dark' : 'light'); document.getElementById('themeBtn').innerText = isL ? '🌙' : '☀️'; }
+    function toggleLang() { const btn = document.getElementById('langBtn'); const isE = btn.innerText === 'KH'; btn.innerText = isE ? 'EN' : 'KH'; document.querySelectorAll('.ui-text').forEach(el => el.innerText = isE ? el.dataset.kh : el.dataset.en); }
 
-    function toggleTheme() {
-        const body = document.body;
-        const isLight = body.getAttribute('data-theme') === 'light';
-        body.setAttribute('data-theme', isLight ? 'dark' : 'light');
-        document.getElementById('themeBtn').innerHTML = isLight ? 'Dark 🌙' : 'Light ☀️';
-    }
-
-    function showPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
+    // TTS Logic
     async function doTTS() {
-        const text = document.getElementById('textIn').value;
-        if(!text) return;
-        const btn = document.getElementById('genBtn');
-        btn.disabled = true; btn.innerText = "...";
+        const text = document.getElementById('textIn').value; if(!text) return;
+        const btn = document.getElementById('genBtn'); btn.innerText = "...";
         try {
-            const res = await fetch(API, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    text,
-                    lang: document.getElementById('langSel').value,
-                    gender: document.getElementById('genderSel').value
-                })
-            });
+            const res = await fetch('/api/tts', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ text, lang: document.getElementById('langSel').value, gender: document.getElementById('genderSel').value }) });
             const data = await res.json();
-            if(data.audioUrl) {
-                audioUrl = data.audioUrl;
-                document.getElementById('resBox').style.display = 'flex';
-                document.getElementById('dlLink').href = audioUrl;
-            }
-        } catch (e) { alert("Error!"); }
-        finally {
-            btn.disabled = false;
-            btn.innerText = document.getElementById('langBtn').innerText === 'EN' ? "បង្កើតសម្លេង" : "Generate Voice";
-        }
+            if(data.audioUrl) { audioUrl = data.audioUrl; document.getElementById('resBox').style.display = 'flex'; }
+        } catch(e) { alert("Error!"); } btn.innerText = "Generate Voice";
     }
-
     function playAud() { if(audioUrl) new Audio(audioUrl).play(); }
-
     async function shareVoice() {
-        if (!audioUrl) return;
-        try {
-            const response = await fetch(audioUrl);
-            const blob = await response.blob();
-            const file = new File([blob], "ny_voice.mp3", { type: "audio/mp3" });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: 'Voice Message',
-                    text: 'ផ្ញើសម្លេងពី Ny Tools'
-                });
-            } else {
-                // Fallback for desktop or non-supported browsers
-                navigator.clipboard.writeText(audioUrl);
-                alert("Link copied! Paste it in your chat.");
-            }
-        } catch (err) {
-            alert("Sharing failed!");
-        }
+        const res = await fetch(audioUrl); const blob = await res.blob();
+        const file = new File([blob], "ny-voice.mp3", {type: "audio/mp3"});
+        if(navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({ files: [file], title: 'Voice' });
     }
+
+    // PDF Logic
+    function handleFiles(fs) { selectedFiles = [...selectedFiles, ...Array.from(fs)]; renderPreview(); }
+    function renderPreview() {
+        const c = document.getElementById('preview-container'); c.innerHTML = "";
+        document.getElementById('file-count').innerText = `${selectedFiles.length} រូបភាពបានជ្រើសរើស`;
+        selectedFiles.forEach((f, i) => {
+            const rd = new FileReader(); rd.onload = (e) => {
+                const d = document.createElement('div'); d.className = 'preview-item';
+                d.innerHTML = `<img src="${e.target.result}"><button class="remove-btn" onclick="removeF(${i})">✕</button>`;
+                c.appendChild(d);
+            }; rd.readAsDataURL(f);
+        });
+    }
+    function removeF(i) { selectedFiles.splice(i, 1); renderPreview(); }
+    function clearPDF() { selectedFiles = []; renderPreview(); }
+    async function generatePDF() {
+        if(!selectedFiles.length) return; const { jsPDF } = window.jspdf; const pdf = new jsPDF();
+        for(let i=0; i<selectedFiles.length; i++) {
+            const imgData = await compressImg(await toB64(selectedFiles[i]));
+            if(i>0) pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+        }
+        pdf.save("NyTools.pdf");
+    }
+    function toB64(f) { return new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }); }
+    function compressImg(b64) {
+        return new Promise(r => {
+            const i = new Image(); i.src = b64; i.onload = () => {
+                const cv = document.createElement('canvas'); const ctx = cv.getContext('2d');
+                cv.width = i.width > 1200 ? 1200 : i.width; cv.height = i.height * (cv.width / i.width);
+                ctx.drawImage(i, 0, 0, cv.width, cv.height); r(cv.toDataURL('image/jpeg', 0.7));
+            };
+        });
+    }
+
+    // QR Logic
+    function setQR(t, btn) {
+        currentQR = t; document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        document.querySelectorAll('.qr-input-group').forEach(g => g.classList.remove('active')); document.getElementById('qr-'+t).classList.add('active');
+    }
+    function generateQR() {
+        let val = ""; const size = parseInt(document.getElementById('qr-size').value) || 300; const margin = 15;
+        if(currentQR==='text') val = document.getElementById('val-text').value;
+        else if(currentQR==='link') val = document.getElementById('val-link').value;
+        else if(currentQR==='wifi') val = `WIFI:S:${document.getElementById('wifi-ssid').value};T:WPA;P:${document.getElementById('wifi-pass').value};;`;
+        else if(currentQR==='mail') val = `mailto:${document.getElementById('mail-to').value}?subject=${document.getElementById('mail-sub').value}&body=${document.getElementById('mail-body').value}`;
+        
+        const hid = document.getElementById('qr-hidden'); hid.innerHTML = "";
+        new QRCode(hid, { text: val, width: size, height: size, correctLevel: QRCode.CorrectLevel.H });
+        
+        setTimeout(() => {
+            const cv = document.getElementById('qr-canvas'); const ctx = cv.getContext('2d');
+            const qrImg = hid.querySelector('img'); cv.width = size + (margin*2); cv.height = size + (margin*2);
+            ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(qrImg, margin, margin);
+            const logo = document.getElementById('logo-input').files[0];
+            if(logo) {
+                const rd = new FileReader(); rd.onload = (e) => {
+                    const lImg = new Image(); lImg.onload = () => {
+                        const lSize = size * 0.2; ctx.drawImage(lImg, (cv.width-lSize)/2, (cv.height-lSize)/2, lSize, lSize);
+                        document.getElementById('dl-qr').style.display = "block";
+                    }; lImg.src = e.target.result;
+                }; rd.readAsDataURL(logo);
+            } else { document.getElementById('dl-qr').style.display = "block"; }
+        }, 300);
+    }
+    function downloadQR() { const a = document.createElement('a'); a.download = 'qr.png'; a.href = document.getElementById('qr-canvas').toDataURL(); a.click(); }
 </script>
-</body> </html>
+</body>
+</html>
