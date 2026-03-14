@@ -1,106 +1,218 @@
 <!DOCTYPE html>
-<html lang="km">
-<head>
+<html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Tools</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; background: #fdfaf7; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .app { width: 100%; max-width: 450px; }
-        
-        /* Home Page Grid */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
-        .icon-card { background: white; border-radius: 20px; padding: 15px 5px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .icon-card img { width: 40px; margin-bottom: 8px; }
-        .icon-card span { display: block; font-size: 11px; font-weight: bold; color: #333; }
-
-        /* Tools Page Area */
-        .page { display: none; background: white; padding: 25px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .active { display: block; }
-        .back-btn { color: #7a5af5; cursor: pointer; font-weight: bold; margin-bottom: 20px; display: inline-block; }
-
-        /* Input & Buttons */
-        textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; font-family: inherit; }
-        .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .btn-purple { background: #7a5af5; }
-        .btn-red { background: white; color: #ff4d4d; border: 2px solid #ff4d4d; margin-top: 10px; }
-        
-        .preview-img { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .preview-img img { width: 100%; height: 80px; object-fit: cover; border-radius: 10px; }
+        :root {
+            --bg: #fdfaf7; --card: #ffffff; --text: #333333;
+            --primary: #007bff; --purple: #6f42c1; --border: #eeeeee;
+            --icon-bg: #e0e0e0;
+        }
+        [data-theme="dark"] {
+            --bg: #121212; --card: #1e1e1e; --text: #ffffff;
+            --border: #333333; --icon-bg: #444444;
+        }
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Kantumruy Pro', sans-serif;
+            margin: 0; transition: 0.3s;
+            display: flex; justify-content: center;
+        }
+        .app-container { width: 100%; max-width: 480px; min-height: 100vh; padding: 15px; box-sizing: border-box; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
+        .logo { font-weight: bold; font-size: 22px; color: var(--primary); }
+        .nav-controls { display: flex; gap: 10px; }
+        .switch-btn {
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text); padding: 6px 15px; border-radius: 20px;
+            cursor: pointer; font-size: 13px; font-weight: bold;
+        }
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .tool-card {
+            background: var(--card); border-radius: 20px; padding: 15px 5px;
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            cursor: pointer; transition: 0.2s;
+        }
+        .tool-card:active { transform: scale(0.95); }
+        .icon-box {
+            width: 60px; height: 60px; margin: 0 auto 10px;
+            background-color: var(--icon-bg); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon-box img { width: 65%; height: 65%; object-fit: contain; }
+        .tool-card span { font-size: 11px; font-weight: 500; display: block; line-height: 1.3; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .back-btn { color: var(--primary); cursor: pointer; margin-bottom: 15px; display: inline-block; font-weight: bold; }
+        select, textarea {
+            width: 100%; padding: 12px; border-radius: 15px; border: 1px solid var(--border);
+            margin-bottom: 12px; background: var(--card); color: var(--text);
+            font-family: inherit; box-sizing: border-box; outline: none;
+        }
+        .btn-main {
+            background: var(--primary); color: white; width: 100%;
+            padding: 18px; border-radius: 50px; border: none;
+            font-weight: bold; font-size: 17px; cursor: pointer;
+        }
+        .result-box {
+            background: var(--purple); color: white; border-radius: 25px;
+            padding: 15px; margin-top: 20px; display: none; flex-direction: column; gap: 10px;
+        }
+        .res-controls { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .action-btns { display: flex; gap: 8px; }
+        .dl-btn, .share-btn { 
+            padding: 10px 15px; border-radius: 12px; text-decoration: none; 
+            font-weight: bold; font-size: 13px; border: none; cursor: pointer;
+        }
+        .dl-btn { background: #28a745; color: white; }
+        .share-btn { background: #00acee; color: white; }
     </style>
 </head>
-<body>
-<div class="app">
-    <div id="home" class="page active">
-        <div class="grid">
-            <div class="icon-card" onclick="showPage('tts')">
-                <img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png">
-                <span>អត្ថបទទៅសំឡេង</span>
-            </div>
-            <div class="icon-card" onclick="showPage('pdf')">
-                <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png">
-                <span>រូបភាពទៅ PDF</span>
-            </div>
+<body data-theme="light">
+
+<div class="app-container">
+    <nav>
+        <div class="logo">Ny Tools</div>
+        <div class="nav-controls">
+            <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
+            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
         </div>
+    </nav>
+
+    <div id="home" class="page active">
+        <div class="tools-grid">
+            <div class="tool-card" onclick="showPage('tts')">
+                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png"></div>
+                <span class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span>
+            </div>
+            </div>
     </div>
 
     <div id="tts" class="page">
-        <span class="back-btn" onclick="showPage('home')">← ត្រឡប់ក្រោយ</span>
-        <h2>អត្ថបទទៅសំឡេង</h2>
-        <select id="lang"><option value="km">ខ្មែរ</option><option value="en">អង់គ្លេស</option></select>
-        <select id="gender"><option value="female">សំឡេងស្រី</option><option value="male">សំឡេងប្រុស</option></select>
-        <textarea id="text" rows="5" placeholder="វាយអត្ថបទទីនេះ..."></textarea>
-        <button class="btn btn-purple" onclick="doTTS()">ស្តាប់សំឡេង</button>
-    </div>
+        <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+        <h2 class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</h2>
 
-    <div id="pdf" class="page">
-        <span class="back-btn" onclick="showPage('home')">← ត្រឡប់ក្រោយ</span>
-        <h2>រូបភាពទៅ PDF</h2>
-        <input type="file" id="files" multiple accept="image/*" onchange="previewImages()" style="margin-bottom: 15px;">
-        <div id="preview" class="preview-img"></div>
-        <button class="btn btn-purple" style="margin-top: 15px;" onclick="makePDF()">ទាញយក PDF</button>
-        <button class="btn btn-red" onclick="location.reload()">សម្អាតទាំងអស់</button>
+        <select id="langSel">
+            <option value="km">ខ្មែរ (Khmer)</option>
+            <option value="en">English</option>
+            <option value="zh">Chinese (中文)</option>
+            <option value="ja">Japanese (日本語)</option>
+            <option value="ko">Korean (한국어)</option>
+            <option value="th">Thai (ไทย)</option>
+            <option value="vi">Vietnamese (Tiếng Việt)</option>
+            <option value="lo">Lao (ລາវ)</option>
+            <option value="my">Myanmar (မြန်မာ)</option>
+            <option value="tl">Filipino (Tagalog)</option>
+            <option value="ms">Malay (Bahasa Melayu)</option>
+            <option value="id">Indonesian (Bahasa Indonesia)</option>
+            <option value="br">Brunei (Malay)</option>
+            <option value="bn">Bengali (বাংলা)</option>
+            <option value="hi">Hindi (हिन्दी)</option>
+            <option value="ar">Arabic (العربية)</option>
+            <option value="pt">Portuguese (Português)</option>
+            <option value="fr">French (Français)</option>
+            <option value="de">German (Deutsch)</option>
+            <option value="es">Spanish (Español)</option>
+            <option value="ru">Russian (Русский)</option>
+        </select>
+
+        <select id="genderSel">
+            <option value="male" class="ui-text" data-en="Male" data-kh="ភេទ: ប្រុស">Male</option>
+            <option value="female" class="ui-text" data-en="Female" data-kh="ភេទ: ស្រី">Female</option>
+        </select>
+
+        <textarea id="textIn" class="ui-placeholder" data-en-ph="Type your text here..." data-kh-ph="វាយអត្ថបទនៅទីនេះ..." placeholder="Type your text here..."></textarea>
+        <button class="btn-main ui-text" onclick="doTTS()" id="genBtn" data-en="Generate Voice" data-kh="បង្កើតសម្លេង">Generate Voice</button>
+
+        <div id="resBox" class="result-box">
+            <div class="res-controls">
+                <button onclick="playAud()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; color:#6f42c1; cursor:pointer; font-size:20px;">▶</button>
+                <div class="action-btns">
+                    <button class="share-btn ui-text" data-en="Share" data-kh="ចែករំលែក" onclick="shareVoice()">Share</button>
+                    <a id="dlLink" class="dl-btn ui-text" data-en="Download" data-kh="ទាញយក" target="_blank">Download</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const API = "https://nytool.onrender.com"; // កែតាម URL របស់អ្នក
+    let audioUrl = "";
+    const API = "https://nytool.onrender.com/api/tts";
+
+    function toggleLang() {
+        const btn = document.getElementById('langBtn');
+        const isEn = btn.innerText === 'KH';
+        btn.innerText = isEn ? 'EN' : 'KH';
+        document.querySelectorAll('.ui-text').forEach(el => el.innerText = isEn ? el.dataset.kh : el.dataset.en);
+        document.querySelectorAll('.ui-placeholder').forEach(el => el.placeholder = isEn ? el.dataset.khPh : el.dataset.enPh);
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const isLight = body.getAttribute('data-theme') === 'light';
+        body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        document.getElementById('themeBtn').innerHTML = isLight ? 'Dark 🌙' : 'Light ☀️';
+    }
+
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
     async function doTTS() {
-        const text = document.getElementById('text').value;
-        const res = await fetch(`${API}/api/tts`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ text, lang: document.getElementById('lang').value, gender: document.getElementById('gender').value })
-        });
-        const data = await res.json();
-        if(data.url) new Audio(API + data.url).play();
-    }
-
-    let imgList = [];
-    function previewImages() {
-        const p = document.getElementById('preview'); p.innerHTML = "";
-        imgList = Array.from(document.getElementById('files').files);
-        imgList.forEach(f => {
-            const reader = new FileReader();
-            reader.onload = (e) => { p.innerHTML += `<img src="${e.target.result}">`; };
-            reader.readAsDataURL(f);
-        });
-    }
-
-    async function makePDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        for(let i=0; i<imgList.length; i++) {
-            if(i > 0) doc.addPage();
-            const data = await new Promise(r => { const rd = new FileReader(); rd.onload=()=>r(rd.result); rd.readAsDataURL(imgList[i]); });
-            doc.addImage(data, 'JPEG', 0, 0, 210, 297);
+        const text = document.getElementById('textIn').value;
+        if(!text) return;
+        const btn = document.getElementById('genBtn');
+        btn.disabled = true; btn.innerText = "...";
+        try {
+            const res = await fetch(API, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    text,
+                    lang: document.getElementById('langSel').value,
+                    gender: document.getElementById('genderSel').value
+                })
+            });
+            const data = await res.json();
+            if(data.audioUrl) {
+                audioUrl = data.audioUrl;
+                document.getElementById('resBox').style.display = 'flex';
+                document.getElementById('dlLink').href = audioUrl;
+            }
+        } catch (e) { alert("Error!"); }
+        finally {
+            btn.disabled = false;
+            btn.innerText = document.getElementById('langBtn').innerText === 'EN' ? "បង្កើតសម្លេង" : "Generate Voice";
         }
-        doc.save("nytools.pdf");
+    }
+
+    function playAud() { if(audioUrl) new Audio(audioUrl).play(); }
+
+    async function shareVoice() {
+        if (!audioUrl) return;
+        try {
+            const response = await fetch(audioUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "ny_voice.mp3", { type: "audio/mp3" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Voice Message',
+                    text: 'ផ្ញើសម្លេងពី Ny Tools'
+                });
+            } else {
+                // Fallback for desktop or non-supported browsers
+                navigator.clipboard.writeText(audioUrl);
+                alert("Link copied! Paste it in your chat.");
+            }
+        } catch (err) {
+            alert("Sharing failed!");
+        }
     }
 </script>
-</body>
-</html>
+</body> </html>
