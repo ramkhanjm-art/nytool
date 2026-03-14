@@ -3,185 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ny Tools</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <title>Ny Tools - 21 Languages</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #007bff; --purple: #7a5af5; --bg: #fdfaf7; --white: #ffffff; }
-        body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; min-height: 100vh; padding: 15px; box-sizing: border-box; }
+        :root { --purple: #7a5af5; --red: #ff4d4d; --blue: #007bff; }
+        body { font-family: 'Kantumruy Pro', sans-serif; background: #fdfaf7; margin: 0; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 480px; padding: 15px; }
         
-        /* Navigation */
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 20px; }
-        .logo { font-weight: bold; font-size: 22px; color: var(--primary); }
-        .lang-toggle { background: var(--white); border: 1px solid #ddd; padding: 5px 15px; border-radius: 20px; cursor: pointer; }
-
-        /* Tool Cards */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .card { background: var(--white); padding: 15px 5px; border-radius: 20px; text-align: center; cursor: pointer; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .card img { width: 35px; margin-bottom: 8px; }
-        .card span { font-size: 11px; font-weight: bold; display: block; }
-
-        /* Pages */
-        .page { display: none; } .active { display: block; }
-        .back-btn { color: var(--primary); cursor: pointer; margin-bottom: 15px; display: inline-block; font-weight: bold; }
-
-        /* Forms */
-        textarea, select, input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; font-family: inherit; font-size: 15px; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 16px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.98); }
-
-        /* Gender Switch */
-        .gender-box { display: flex; gap: 10px; margin-bottom: 15px; }
-        .gender-box label { flex: 1; background: var(--white); padding: 12px; border-radius: 12px; border: 1px solid #ddd; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .gender-box input { display: none; }
-        .gender-box label:has(input:checked) { border-color: var(--primary); background: #e7f3ff; color: var(--primary); }
-
-        /* PDF & QR Specific */
-        .upload-zone { border: 2px dashed #ccc; border-radius: 25px; padding: 40px 20px; text-align: center; background: #fff; cursor: pointer; margin-bottom: 15px; }
-        .upload-zone img { width: 70px; margin-bottom: 10px; }
-        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .preview-item { position: relative; height: 110px; border-radius: 15px; overflow: hidden; border: 1px solid #eee; }
+        /* PDF UI Style */
+        .upload-area { border: 2px dashed #ccc; border-radius: 25px; padding: 30px; text-align: center; background: white; cursor: pointer; margin-top: 20px; }
+        .upload-area img { width: 70px; margin-bottom: 10px; }
+        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .preview-item { position: relative; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #eee; }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .remove-img { position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.7); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
         
-        #resBox { display: none; background: var(--purple); color: white; padding: 15px; border-radius: 20px; margin-top: 15px; align-items: center; justify-content: space-between; }
-        #qr-box { display: none; flex-direction: column; align-items: center; margin-top: 20px; padding: 20px; background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        /* TTS UI */
+        select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
+        .gender-select { display: flex; gap: 10px; margin-bottom: 15px; }
+        .gender-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 10px; background: white; cursor: pointer; text-align: center; }
+        .gender-btn.active { border-color: var(--blue); background: #e7f3ff; color: var(--blue); }
+
+        .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
+        .btn-purple { background: linear-gradient(to right, #7a5af5, #9d7cfd); color: white; }
+        .btn-red { background: white; color: var(--red); border: 2px solid var(--red); }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <nav>
-        <div class="logo">Ny Tools</div>
-        <button class="lang-toggle" onclick="toggleLang()" id="langBtn">EN</button>
-    </nav>
-
-    <div id="home" class="page active">
-        <div class="grid">
-            <div class="card" onclick="showPage('tts')"><img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png"><span class="ui-txt" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span></div>
-            <div class="card" onclick="showPage('pdf')"><img src="https://cdn-icons-png.flaticon.com/512/337/337946.png"><span class="ui-txt" data-en="Image to PDF" data-kh="រូបភាពទៅ PDF">Image to PDF</span></div>
-            <div class="card" onclick="showPage('qr')"><img src="https://cdn-icons-png.flaticon.com/512/241/241528.png"><span class="ui-txt" data-en="QR Generator" data-kh="បង្កើត QR">QR Generator</span></div>
-        </div>
-    </div>
-
-    <div id="tts" class="page">
-        <span class="back-btn" onclick="showPage('home')">← Back</span>
+    <div class="container">
+        <h3 style="color: var(--blue);">Text to Speech (21 Languages)</h3>
         <select id="langSel">
-            <option value="km">ខ្មែរ (Khmer)</option><option value="en" selected>English</option>
+            <option value="km">Khmer (ខ្មែរ)</option><option value="en">English</option>
             <option value="zh-CN">Chinese</option><option value="ja">Japanese</option>
             <option value="ko">Korean</option><option value="th">Thai</option>
             <option value="vi">Vietnamese</option><option value="lo">Lao</option>
+            <option value="my">Myanmar</option><option value="tl">Filipino</option>
+            <option value="ms">Malay</option><option value="id">Indonesian</option>
+            <option value="bn">Bengali</option><option value="hi">Hindi</option>
+            <option value="ar">Arabic</option><option value="pt">Portuguese</option>
+            <option value="fr">French</option><option value="de">German</option>
+            <option value="es">Spanish</option><option value="ru">Russian</option>
+            <option value="it">Italian</option>
         </select>
         
-        <div class="gender-box">
-            <label><input type="radio" name="gender" value="female" checked> 👩 <span class="ui-txt" data-en="Female" data-kh="ស្រី">Female</span></label>
-            <label><input type="radio" name="gender" value="male"> 👨 <span class="ui-txt" data-en="Male" data-kh="ប្រុស">Male</span></label>
+        <div class="gender-select">
+            <div class="gender-btn active" id="fBtn" onclick="setGender('female')">ស្រី (Female)</div>
+            <div class="gender-btn" id="mBtn" onclick="setGender('male')">ប្រុស (Male)</div>
         </div>
 
-        <textarea id="textIn" rows="6" placeholder="Type here..."></textarea>
-        <button id="genBtn" class="btn-main" style="background:var(--primary);" onclick="doTTS()">Generate Voice</button>
-        
-        <div id="resBox">
-            <button onclick="playAud()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; font-size:20px; cursor:pointer;">▶</button>
-            <span style="font-weight:bold;">Voice Ready!</span>
-        </div>
-    </div>
+        <textarea id="textIn" rows="4" placeholder="វាយអត្ថបទនៅទីនេះ..."></textarea>
+        <button class="btn btn-purple" onclick="doTTS()" id="ttsBtn">បង្កើតសំឡេង</button>
 
-    <div id="pdf" class="page">
-        <span class="back-btn" onclick="showPage('home')">← Back</span>
-        <div class="upload-zone" onclick="document.getElementById('imgIn').click()">
+        <hr>
+
+        <div class="upload-area" onclick="document.getElementById('imgIn').click()">
             <img src="https://cdn-icons-png.flaticon.com/512/685/685655.png">
-            <h3 class="ui-txt" data-en="Tap to upload images" data-kh="ចុចដើម្បីបញ្ចូលរូបភាព">Tap to upload images</h3>
+            <p>ចុចដើម្បីបញ្ចូលរូបភាព</p>
             <input type="file" id="imgIn" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
         </div>
         <div id="preview" class="preview-grid"></div>
-        <button class="btn-main" style="background:var(--purple); margin-bottom:10px;" onclick="generatePDF()">Convert to PDF</button>
-        <button class="btn-main" style="background:transparent; color:#ff4d4d; border:2px solid #ff4d4d;" onclick="clearFiles()">Clear All</button>
+        <button class="btn btn-purple" onclick="generatePDF()">📄 បំប្លែងទៅ PDF</button>
+        <button class="btn btn-red" onclick="clearPDF()">🗑️ សម្អាតទាំងអស់</button>
     </div>
 
-    <div id="qr" class="page">
-        <span class="back-btn" onclick="showPage('home')">← Back</span>
-        <input type="text" id="qrData" placeholder="Enter text or URL">
-        <button class="btn-main" style="background:var(--primary);" onclick="generateQR()">Generate QR</button>
-        <div id="qr-box">
-            <div id="qrcode"></div>
-            <button class="btn-main" style="background:#28a745; margin-top:15px;" onclick="downloadQR()">Download PNG</button>
-        </div>
-    </div>
-</div>
+    <script>
+        let currentGender = 'female';
+        let files = [];
+        const API = "https://nytool.onrender.com"; // កែតាម URL របស់អ្នក
 
-<script>
-    const API_URL = "https://nytool.onrender.com"; // កែ URL នេះឱ្យត្រូវនឹងវេបសាយអ្នក
-    let audioUrl = ""; let files = [];
+        function setGender(g) {
+            currentGender = g;
+            document.getElementById('fBtn').classList.toggle('active', g === 'female');
+            document.getElementById('mBtn').classList.toggle('active', g === 'male');
+        }
 
-    function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-    
-    function toggleLang() {
-        const btn = document.getElementById('langBtn'); const isEN = btn.innerText === 'EN';
-        btn.innerText = isEN ? 'KH' : 'EN';
-        document.querySelectorAll('.ui-txt').forEach(el => el.innerText = isEN ? el.dataset.kh : el.dataset.en);
-    }
-
-    // TTS Logic
-    async function doTTS() {
-        const text = document.getElementById('textIn').value.trim(); if(!text) return;
-        const btn = document.getElementById('genBtn');
-        btn.innerText = "..."; btn.disabled = true;
-
-        try {
-            const res = await fetch(`${API_URL}/api/tts`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    text, 
-                    lang: document.getElementById('langSel').value,
-                    gender: document.querySelector('input[name="gender"]:checked').value
-                })
+        async function doTTS() {
+            const text = document.getElementById('textIn').value;
+            if(!text) return;
+            const btn = document.getElementById('ttsBtn');
+            btn.innerText = "កំពុងបង្កើត...";
+            const res = await fetch(`${API}/api/tts`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ text, lang: document.getElementById('langSel').value, gender: currentGender })
             });
             const data = await res.json();
-            if(data.audioUrl) { audioUrl = API_URL + data.audioUrl; document.getElementById('resBox').style.display = 'flex'; }
-        } catch(e) { alert("Server Error!"); }
-        btn.innerText = "Generate Voice"; btn.disabled = false;
-    }
-    function playAud() { if(audioUrl) new Audio(audioUrl).play(); }
-
-    // PDF Logic
-    function handleFiles(fs) { files = [...files, ...Array.from(fs)]; renderPreview(); }
-    function renderPreview() {
-        const container = document.getElementById('preview'); container.innerHTML = "";
-        files.forEach((f, i) => {
-            const reader = new FileReader(); reader.onload = (e) => {
-                const div = document.createElement('div'); div.className = 'preview-item';
-                div.innerHTML = `<img src="${e.target.result}"><button class="remove-img" onclick="files.splice(${i},1);renderPreview();">✕</button>`;
-                container.appendChild(div);
-            }; reader.readAsDataURL(f);
-        });
-    }
-    function clearFiles() { files = []; renderPreview(); }
-    async function generatePDF() {
-        if(!files.length) return;
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        for(let i=0; i<files.length; i++) {
-            if(i > 0) doc.addPage();
-            const data = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(files[i]); });
-            doc.addImage(data, 'JPEG', 0, 0, 210, 297);
+            if(data.audioUrl) new Audio(API + data.audioUrl).play();
+            btn.innerText = "បង្កើតសំឡេង";
         }
-        doc.save("Ny-Tools.pdf");
-    }
 
-    // QR Logic
-    function generateQR() {
-        const val = document.getElementById('qrData').value; if(!val) return;
-        const qrDiv = document.getElementById('qrcode'); qrDiv.innerHTML = "";
-        new QRCode(qrDiv, { text: val, width: 200, height: 200 });
-        document.getElementById('qr-box').style.display = 'flex';
-    }
-    async function downloadQR() {
-        const img = document.querySelector('#qrcode img');
-        const res = await fetch(img.src); const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = "QR_NyTools.png"; a.click();
-    }
-</script>
+        function handleFiles(fs) { files = [...files, ...Array.from(fs)]; renderPreview(); }
+        function renderPreview() {
+            const p = document.getElementById('preview'); p.innerHTML = "";
+            files.forEach((f, i) => {
+                const rd = new FileReader();
+                rd.onload = (e) => {
+                    const d = document.createElement('div'); d.className = 'preview-item';
+                    d.innerHTML = `<img src="${e.target.result}"><button onclick="files.splice(${i},1);renderPreview();" style="position:absolute;top:2px;right:2px;background:red;color:white;border:none;border-radius:50%;cursor:pointer;">✕</button>`;
+                    p.appendChild(d);
+                };
+                rd.readAsDataURL(f);
+            });
+        }
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            for(let i=0; i<files.length; i++) {
+                if(i > 0) doc.addPage();
+                const data = await new Promise(r => { const rd = new FileReader(); rd.onload=()=>r(rd.result); rd.readAsDataURL(files[i]); });
+                doc.addImage(data, 'JPEG', 0, 0, 210, 297);
+            }
+            doc.save("Ny-Tools.pdf");
+        }
+        function clearPDF() { files = []; renderPreview(); }
+    </script>
 </body>
 </html>
