@@ -269,18 +269,26 @@
             alert("Sharing failed!");
         }
     }
-   // បង្ហាញប៊ូតុងភ្លាមៗតែម្តង
+      let deferredPrompt;
 const installBtn = document.getElementById('install-button');
-installBtn.style.display = 'inline-flex'; 
-
-let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    console.log("PWA ready to install");
+  e.preventDefault();
+  deferredPrompt = e;
+  // បង្ហាញប៊ូតុងពេលវាអាច Install បាន
+  installBtn.style.display = 'inline-flex'; 
 });
 
+installBtn.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      installBtn.style.display = 'none';
+    }
+    deferredPrompt = null;
+  }
+});
 installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
         deferredPrompt.prompt();
