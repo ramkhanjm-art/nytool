@@ -3,6 +3,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Tools</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+    
+<link rel="icon" type="image/jpg" href="weblogo.jpg">
+
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -68,6 +73,15 @@
         }
         .dl-btn { background: #28a745; color: white; }
         .share-btn { background: #00acee; color: white; }
+        #installBtn{
+  padding:1px 1px;
+  background:#ffffff;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-size:10px;
+  cursor:pointer;
+}
     </style>
 </head>
 <body data-theme="light">
@@ -76,6 +90,8 @@
     <nav>
         <div class="logo">Ny Tools</div>
         <div class="nav-controls">
+<img id="installBtn" src="https://cdn-icons-png.flaticon.com/512/888/888857.png" 
+     width="30" height="30" style="cursor:pointer;" alt="Install App">
             <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
             <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
         </div>
@@ -84,7 +100,7 @@
     <div id="home" class="page active">
         <div class="tools-grid">
             <div class="tool-card" onclick="showPage('tts')">
-                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3039/3039433.png"></div>
+                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3917/3917655.png"></div>
                 <span class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span>
             </div>
             </div>
@@ -214,5 +230,24 @@
             alert("Sharing failed!");
         }
     }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js');
+}
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBtn").style.display = "block"; // បង្ហាញ logo
+});
+
+document.getElementById("installBtn").addEventListener("click", () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      deferredPrompt = null;
+    });
+  }
+});
 </script>
 </body> </html>
