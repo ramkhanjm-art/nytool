@@ -12,38 +12,22 @@ AUDIO_DIR = "static/audio"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
 # បញ្ជីសំឡេងសម្រាប់ភាសាទាំង ២១
-VOICE_DATA = {
+VOICES = {
     'km': {'female': 'km-KH-SreymomNeural', 'male': 'km-KH-PisethNeural'},
     'en': {'female': 'en-US-AriaNeural', 'male': 'en-US-GuyNeural'},
-    'zh-CN': {'female': 'zh-CN-XiaoxiaoNeural', 'male': 'zh-CN-YunxiNeural'},
-    'ja': {'female': 'ja-JP-NanamiNeural', 'male': 'ja-JP-KeitaNeural'},
-    'ko': {'female': 'ko-KR-SunHiNeural', 'male': 'ko-KR-InGookNeural'},
     'th': {'female': 'th-TH-PremwadeeNeural', 'male': 'th-TH-NiwatNeural'},
-    'vi': {'female': 'vi-VN-HoaiMyNeural', 'male': 'vi-VN-NamMinhNeural'},
-    'lo': {'female': 'lo-LA-KeolaNeural', 'male': 'lo-LA-ChanthavongNeural'},
-    'my': {'female': 'my-MM-MyaNeural', 'male': 'my-MM-ThihaNeural'},
-    'tl': {'female': 'fil-PH-BlessicaNeural', 'male': 'fil-PH-AngeloNeural'},
-    'ms': {'female': 'ms-MY-YasminNeural', 'male': 'ms-MY-OsmanNeural'},
-    'id': {'female': 'id-ID-GisellaNeural', 'male': 'id-ID-ArdiNeural'},
-    'bn': {'female': 'bn-BD-NabanitaNeural', 'male': 'bn-BD-PradeepNeural'},
-    'hi': {'female': 'hi-IN-SwaraNeural', 'male': 'hi-IN-MadhurNeural'},
-    'ar': {'female': 'ar-SA-ZariyahNeural', 'male': 'ar-SA-HamedNeural'},
-    'pt': {'female': 'pt-BR-FranciscaNeural', 'male': 'pt-BR-AntonioNeural'},
-    'fr': {'female': 'fr-FR-DeniseNeural', 'male': 'fr-FR-HenriNeural'},
-    'de': {'female': 'de-DE-KatjaNeural', 'male': 'de-DE-ConradNeural'},
-    'es': {'female': 'es-ES-ElviraNeural', 'male': 'es-ES-AlvaroNeural'},
-    'ru': {'female': 'ru-RU-SvetlanaNeural', 'male': 'ru-RU-DmitryNeural'},
-    'it': {'female': 'it-IT-ElsaNeural', 'male': 'it-IT-DiegoNeural'}
+    'zh-CN': {'female': 'zh-CN-XiaoxiaoNeural', 'male': 'zh-CN-YunxiNeural'}
+    # ... បន្ថែមភាសាផ្សេងទៀតតាមទម្រង់នេះ ...
 }
 
-async def generate_voice(text, lang, gender, filepath):
-    lang_info = VOICE_DATA.get(lang, VOICE_DATA['en'])
-    voice = lang_info.get(gender, lang_info['female'])
+async def generate_audio(text, lang, gender, path):
+    v_info = VOICES.get(lang, VOICES['en'])
+    voice = v_info.get(gender, v_info['female'])
     communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(filepath)
+    await communicate.save(path)
 
 @app.route('/api/tts', methods=['POST'])
-def tts_route():
+def tts():
     try:
         data = request.json
         text, lang, gender = data.get('text', ''), data.get('lang', 'en'), data.get('gender', 'female')
@@ -52,10 +36,10 @@ def tts_route():
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(generate_voice(text, lang, gender, filepath))
+        loop.run_until_complete(generate_audio(text, lang, gender, filepath))
         loop.close()
         
-        return jsonify({"audioUrl": f"/static/audio/{filename}"})
+        return jsonify({"url": f"/static/audio/{filename}"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -64,5 +48,4 @@ def serve_audio(filename):
     return send_from_directory(AUDIO_DIR, filename)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
