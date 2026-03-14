@@ -8,11 +8,10 @@ import edge_tts
 app = Flask(__name__)
 CORS(app)
 
-# បង្កើត folder សម្រាប់រក្សាទុកសំឡេង
 AUDIO_DIR = "static/audio"
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-# បញ្ជីសំឡេង Neural សម្រាប់ភាសាទាំង ២១ (ប្រុស និង ស្រី)
+# បញ្ជីសំឡេងសម្រាប់ភាសាទាំង ២១
 VOICE_DATA = {
     'km': {'female': 'km-KH-SreymomNeural', 'male': 'km-KH-PisethNeural'},
     'en': {'female': 'en-US-AriaNeural', 'male': 'en-US-GuyNeural'},
@@ -37,7 +36,7 @@ VOICE_DATA = {
     'it': {'female': 'it-IT-ElsaNeural', 'male': 'it-IT-DiegoNeural'}
 }
 
-async def save_voice(text, lang, gender, filepath):
+async def generate_voice(text, lang, gender, filepath):
     lang_info = VOICE_DATA.get(lang, VOICE_DATA['en'])
     voice = lang_info.get(gender, lang_info['female'])
     communicate = edge_tts.Communicate(text, voice)
@@ -47,21 +46,15 @@ async def save_voice(text, lang, gender, filepath):
 def tts_route():
     try:
         data = request.json
-        text = data.get('text', '').strip()
-        lang = data.get('lang', 'en')
-        gender = data.get('gender', 'female')
-
-        if not text:
-            return jsonify({"error": "No text"}), 400
-
+        text, lang, gender = data.get('text', ''), data.get('lang', 'en'), data.get('gender', 'female')
         filename = f"{uuid.uuid4()}.mp3"
         filepath = os.path.join(AUDIO_DIR, filename)
-
+        
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(save_voice(text, lang, gender, filepath))
+        loop.run_until_complete(generate_voice(text, lang, gender, filepath))
         loop.close()
-
+        
         return jsonify({"audioUrl": f"/static/audio/{filename}"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
