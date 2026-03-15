@@ -2,7 +2,7 @@
 <html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ny Tools</title>
+    <title>Akima Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -20,7 +20,17 @@
             margin: 0; transition: 0.3s;
             display: flex; justify-content: center;
         }
-        .app-container { width: 100%; max-width: 480px; min-height: 100vh; padding: 15px; box-sizing: border-box; }
+.app-container { 
+    width: 100%; 
+    max-width: 480px; 
+    min-height: 100vh; 
+    padding: 15px; 
+    box-sizing: border-box; 
+    /* បន្ថែម ២ បន្ទាត់ខាងក្រោមនេះ */
+    display: flex;
+    flex-direction: column;
+}
+
         nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
         .logo { font-weight: bold; font-size: 22px; color: var(--primary); }
         .nav-controls { display: flex; gap: 10px; }
@@ -68,13 +78,63 @@
         }
         .dl-btn { background: #28a745; color: white; }
         .share-btn { background: #00acee; color: white; }
+        /* Footer Styles */
+footer {
+    margin-top: auto; /* បន្ទាត់នេះនឹងរុញ footer ទៅបាតក្រោម */
+    padding: 30px 0 10px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+.footer-links a, .footer-links span {
+    font-size: 12px;
+    color: var(--primary);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background: var(--card);
+    color: var(--text);
+    width: 90%; max-width: 500px;
+    padding: 25px; border-radius: 25px;
+    max-height: 80vh; overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.close-modal {
+    position: sticky; top: 0; float: right; 
+    font-size: 24px; cursor: pointer; opacity: 0.5;
+}
+.modal-body h1, .modal-body h2 { color: var(--primary); font-size: 1.2rem; }
+.modal-body ul { padding-left: 20px; }
+.modal-body p, .modal-body li { font-size: 14px; line-height: 1.6; opacity: 0.9; }
+
     </style>
 </head>
 <body data-theme="light">
 
 <div class="app-container">
     <nav>
-        <div class="logo">Ny Tools</div>
+        <div class="logo">Akima Tools</div>
         <div class="nav-controls">
             <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
             <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
@@ -128,7 +188,8 @@
 
         <div id="resBox" class="result-box">
             <div class="res-controls">
-                <button onclick="playAud()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; color:#6f42c1; cursor:pointer; font-size:20px;">▶</button>
+<button id="playBtn" onclick="togglePlay()" style="background:white; border:none; width:45px; height:45px; border-radius:50%; color:#6f42c1; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;">▶</button>
+
                 <div class="action-btns">
                     <button class="share-btn ui-text" data-en="Share" data-kh="ចែករំលែក" onclick="shareVoice()">Share</button>
                     <a id="dlLink" class="dl-btn ui-text" data-en="Download" data-kh="ទាញយក" target="_blank">Download</a>
@@ -136,6 +197,25 @@
             </div>
         </div>
     </div>
+        <footer>
+        <div style="font-size: 13px; opacity: 0.6;" class="ui-text" data-en="Support" data-kh="ជំនួយ">Support</div>
+        <div class="footer-links">
+            <span onclick="openModal('terms')" class="ui-text" data-en="Terms" data-kh="លក្ខខណ្ឌ">Terms</span>
+            <span onclick="openModal('privacy')" class="ui-text" data-en="Privacy" data-kh="ឯកជនភាព">Privacy</span>
+            <span onclick="openModal('about')" class="ui-text" data-en="About" data-kh="អំពីយើង">About</span>
+            <a href="https://t.me/Wei_Sony" target="_blank" class="ui-text" data-en="Contact" data-kh="ទំនាក់ទំនង">Contact</a>
+        </div>
+        <p style="font-size: 10px; margin-top: 20px; opacity: 0.4;">© 2026 Akima Tools</p>
+    </footer>
+
+    <div id="infoModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('infoModal').style.display='none'">&times;</span>
+            <div id="modalBody" class="modal-body">
+                </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -178,11 +258,14 @@
                 })
             });
             const data = await res.json();
-            if(data.audioUrl) {
-                audioUrl = data.audioUrl;
-                document.getElementById('resBox').style.display = 'flex';
-                document.getElementById('dlLink').href = audioUrl;
-            }
+if(data.audioUrl) {
+    audioUrl = data.audioUrl;
+    currentAudio = null; // បន្ថែមបន្ទាត់នេះ ដើម្បីឱ្យវាបង្កើត Audio ថ្មីពេលចុច Play
+    document.getElementById('playBtn').innerText = "▶"; // ធានាថាវាចេញសញ្ញា Play
+    document.getElementById('resBox').style.display = 'flex';
+    document.getElementById('dlLink').href = audioUrl;
+}
+
         } catch (e) { alert("Error!"); }
         finally {
             btn.disabled = false;
@@ -190,20 +273,47 @@
         }
     }
 
-    function playAud() { if(audioUrl) new Audio(audioUrl).play(); }
+let currentAudio = null; // រក្សាទុក Audio ដែលកំពុងចាក់
+
+function togglePlay() {
+    const btn = document.getElementById('playBtn');
+    
+    // បើមិនទាន់មាន audioUrl ទេ មិនបាច់ធ្វើអ្វីឡើយ
+    if (!audioUrl) return;
+
+    // បង្កើត Audio Object បើវាមិនទាន់មាន
+    if (!currentAudio) {
+        currentAudio = new Audio(audioUrl);
+        
+        // នៅពេលចាក់ចប់ ឱ្យវាប្តូររូបមក Play វិញ
+        currentAudio.onended = () => {
+            btn.innerText = "▶";
+        };
+    }
+
+    // ប្តូរស្ថានភាព Play/Pause
+    if (currentAudio.paused) {
+        currentAudio.play();
+        btn.innerText = "❙❙"; // ប្តូរទៅសញ្ញា Pause
+    } else {
+        currentAudio.pause();
+        btn.innerText = "▶"; // ប្តូរទៅសញ្ញា Play វិញ
+    }
+}
+
 
     async function shareVoice() {
         if (!audioUrl) return;
         try {
             const response = await fetch(audioUrl);
             const blob = await response.blob();
-            const file = new File([blob], "ny_voice.mp3", { type: "audio/mp3" });
+            const file = new File([blob], "akima_voice.mp3", { type: "audio/mp3" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     title: 'Voice Message',
-                    text: 'ផ្ញើសម្លេងពី Ny Tools'
+                    text: 'ផ្ញើសម្លេងពី Akima Tools'
                 });
             } else {
                 // Fallback for desktop or non-supported browsers
@@ -214,5 +324,32 @@
             alert("Sharing failed!");
         }
     }
+    const contentData = {
+    terms: {
+        en: `<h1>Terms & Conditions</h1><p>Last Updated: March 2026</p><h2>Use of Service</h2><p>You agree to use Akima Tools only for legal purposes and not misuse the service.</p><h2>Tools Functionality</h2><p>Ny Tools provides free online tools such as text-to-speech. Results may vary and we do not guarantee accuracy.</p><h2>Prohibited Use</h2><ul><li>Illegal activity</li><li>Abuse of our system</li><li>Uploading harmful content</li></ul><h2>Limitation of Liability</h2><p>Akima Tools is not responsible for any damages caused by the use of our tools.</p>`,
+        kh: `<h1>គោលការណ៍ប្រើប្រាស់</h1><p>កាលបរិច្ឆេទចុងក្រោយ៖ មីនា ២០២៦</p><h2>ការប្រើប្រាស់សេវាកម្ម</h2><p>អ្នកយល់ព្រមប្រើប្រាស់ Akima Tools សម្រាប់តែគោលបំណងស្របច្បាប់ និងមិនប្រើប្រាស់ក្នុងផ្លូវខុស។</p><h2>មុខងារឧបករណ៍</h2><p>Ny Tools ផ្តល់ឧបករណ៍អនឡាញឥតគិតថ្លៃដូចជា ការប្តូរអត្ថបទទៅជាសម្លេង។ លទ្ធផលអាចមានការប្រែប្រួល ហើយយើងមិនធានានូវភាពត្រឹមត្រូវទាំងស្រុងនោះទេ។</p><h2>ការហាមឃាត់</h2><ul><li>សកម្មភាពខុសច្បាប់</li><li>ការរំលោភបំពានលើប្រព័ន្ធរបស់យើង</li><li>ការបង្ហោះមាតិកាដែលមានគ្រោះថ្នាក់</li></ul>`
+    },
+    privacy: {
+        en: `<h1>Privacy Policy</h1><p>Last Updated: March 2026</p><h2>Information We Collect</h2><p>Text you input into our tools may be temporarily processed to generate results.</p><h2>Usage Data</h2><p>We may collect basic technical information such as browser type and device information.</p><h2>Cookies</h2><p>We may use cookies or local storage to remember settings like language or theme.</p><h2>Third Party Services</h2><p>Some tools may use third-party APIs to generate results.</p>`,
+        kh: `<h1>គោលការណ៍ឯកជនភាព</h1><p>កាលបរិច្ឆេទចុងក្រោយ៖ មីនា ២០២៦</p><h2>ព័ត៌មានដែលយើងប្រមូល</h2><p>អត្ថបទដែលអ្នកបញ្ចូលទៅក្នុងឧបករណ៍របស់យើង អាចនឹងត្រូវដំណើរការជាបណ្តោះអាសន្នដើម្បីបង្កើតលទ្ធផល។</p><h2>ទិន្នន័យប្រើប្រាស់</h2><p>យើងអាចប្រមូលព័ត៌មានបច្ចេកទេសមូលដ្ឋានដូចជា ប្រភេទកម្មវិធីរុករក (Browser) និងព័ត៌មានឧបករណ៍។</p><h2>Cookies</h2><p>យើងអាចប្រើប្រាស់ Cookies ឬ Local Storage ដើម្បីចងចាំការកំណត់ដូចជា ភាសា ឬស្បែក (Theme)។</p>`
+    },
+    about: {
+        en: `<h1>About Akima Tools</h1><p>Akima Tools is a free online tools website designed to help users perform useful tasks quickly and easily.</p><ul><li>Text to Speech</li><li>Online utilities</li><li>Future AI tools</li></ul><p>Thank you for using Ny Tools.</p>`,
+        kh: `<h1>អំពី Akima Tools</h1><p>Akima Tools គឺជាគេហទំព័រឧបករណ៍អនឡាញឥតគិតថ្លៃ ដែលត្រូវបានរចនាឡើងដើម្បីជួយអ្នកប្រើប្រាស់បំពេញការងារដែលមានប្រយោជន៍បានយ៉ាងរហ័ស និងងាយស្រួល។</p><ul><li>អត្ថបទទៅជាសម្លេង</li><li>ឧបករណ៍ប្រើប្រាស់អនឡាញ</li><li>ឧបករណ៍ AI នាពេលអនាគត</li></ul><p>សូមអរគុណសម្រាប់ការប្រើប្រាស់ Akima Tools។</p>`
+    }
+};
+
+function openModal(type) {
+    const lang = document.getElementById('langBtn').innerText === 'EN' ? 'kh' : 'en';
+    document.getElementById('modalBody').innerHTML = contentData[type][lang];
+    document.getElementById('infoModal').style.display = 'flex';
+}
+
+function closeModal(e) {
+    if (e.target.className === 'modal') {
+        document.getElementById('infoModal').style.display = 'none';
+    }
+}
+
 </script>
 </body> </html>
