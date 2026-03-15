@@ -4,10 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href='data:application/manifest+json,{"short_name":"NyTool","name":"Ny Tools","start_url":".","display":"standalone","icons":[{"src":"https://nytool.onrender.com/icon.png","sizes":"192x192","type":"image/png"}]}'>
-
-
-<link rel="icon" type="image/jpg" href="weblogo.jpg">
     <style>
         :root {
             --bg: #fdfaf7; --card: #ffffff; --text: #333333;
@@ -72,50 +68,6 @@
         }
         .dl-btn { background: #28a745; color: white; }
         .share-btn { background: #00acee; color: white; }
-          /* រចនាប័ទ្មប៊ូតុងឱ្យដូច Play Store */
-    .playstore-btn {
-        display: none; /* លាក់ជាមុន សឹមបង្ហាញតាម JavaScript */
-        background-color: #ffff;
-        color: white;
-        padding: 8px 8px;
-        border-radius: 7px;
-        border: 1px solid #ffff;
-        display: inline-flex;
-        align-items: center;
-        text-decoration: none;
-        cursor: pointer;
-        font-family: 'Roboto', sans-serif;
-        transition: 0.3s;
-    }
-
-    .playstore-btn:hover {
-        background-color: #222;
-    }
-
-    .playstore-btn img {
-        width: 30px; /* រូប Icon App របស់អ្នក */
-        height: 30px;
-        margin-right: 5px;
-        border-radius: 4px;
-    }
-
-    .playstore-btn .btn-text {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        line-height: 1.2;
-    }
-
-    .playstore-btn .get-it {
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .playstore-btn .app-name {
-        font-size: 18px;
-        font-weight: 500;
-    }
     </style>
 </head>
 <body data-theme="light">
@@ -124,15 +76,8 @@
     <nav>
         <div class="logo">Ny Tools</div>
         <div class="nav-controls">
-          <button id="install-button" class="playstore-btn">
-    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" alt="App Icon">
-    <div class="btn-text">
-        <span class="get-it"></span>
-        <span class="nytools"></span>
-    </div>
-</button>
             <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
-            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light️</button>
+            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
         </div>
     </nav>
 
@@ -269,52 +214,5 @@
             alert("Sharing failed!");
         }
     }
-      let deferredPrompt;
-const installBtn = document.getElementById('install-button');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // បង្ហាញប៊ូតុងពេលវាអាច Install បាន
-  installBtn.style.display = 'inline-flex'; 
-});
-
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
-    }
-    deferredPrompt = null;
-  }
-});
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-    } else {
-        // បើ Browser មិនទាន់អនុញ្ញាត ឱ្យវាប្រាប់អ្នកប្រើប្រាស់
-        alert("សូមចុចលើសញ្ញាចុច 3 (⋮) នៅជ្រុងខាងលើ រួចជ្រើសរើសយកពាក្យថា Install App ឬ Add to Home Screen");
-    }
-});
-
-
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
-    }
-    deferredPrompt = null;
-  }
-});
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js') // ប្រើ ./ ពីមុខឈ្មោះ file
-    .then(() => console.log("Service Worker Registered"))
-    .catch(err => console.log("Service Worker Failed", err));
-}
-
-
 </script>
 </body> </html>
