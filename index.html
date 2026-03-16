@@ -2,9 +2,14 @@
 <html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-adsense-account" content="ca-pub-6376718493759245">
     <title>Akima Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+
     <style>
         :root {
             --bg: #fdfaf7; --card: #ffffff; --text: #333333;
@@ -128,6 +133,379 @@ footer {
 .modal-body h1, .modal-body h2 { color: var(--primary); font-size: 1.2rem; }
 .modal-body ul { padding-left: 20px; }
 .modal-body p, .modal-body li { font-size: 14px; line-height: 1.6; opacity: 0.9; }
+/* ធ្វើឱ្យ Canvas ច្បាស់ */
+#wheelCanvas { max-width: 100%; height: auto; }
+
+/* Popup លទ្ធផល */
+.spin-popup {
+    display: none;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card);
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 100;
+    width: 80%;
+    border: 2px solid var(--primary);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+    from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+.spin-popup h1 { color: var(--primary); margin: 10px 0; font-size: 28px; }
+
+.qr-config-group {
+    background: var(--bg);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+}
+.qr-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+.qr-input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.qr-preview-card {
+    background: white;
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    display: inline-block;
+    transition: 0.3s;
+}
+#qrCanvas svg, #qrCanvas canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+.custom-file-upload {
+    border: 1px dashed var(--primary);
+    display: block;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+#qrCanvas {
+    width: 100%;
+    max-width: 280px; /* កំណត់ទំហំបង្ហាញលើអេក្រង់ */
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+#qrCanvas canvas {
+    width: 100% !important; /* បង្ខំឱ្យ Canvas រីកតាម Container */
+    height: auto !important;
+    border-radius: 10px;
+}
+
+.qr-preview-card {
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.loading-spinner {
+    border: 4px solid rgba(0,0,0,0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: var(--primary);
+    animation: spin 1s linear infinite;
+    display: none;
+    margin: 10px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.unit-card-group {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.unit-type-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 15px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+.unit-type-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+}
+.unit-input-box {
+    background: var(--bg);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+.unit-input-box input {
+    background: transparent;
+    border: none;
+    font-size: 35px;
+    font-weight: 800;
+    width: 100%;
+    text-align: center;
+    color: var(--primary);
+    outline: none;
+}
+.unit-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 15px;
+}
+.unit-chip {
+    padding: 8px;
+    border-radius: 10px;
+    background: #f1f2f6;
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.unit-chip.active {
+    background: #e1eeff;
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: bold;
+}
+
+:root {
+    --primary: #007bff;
+    --primary-light: #e1eeff;
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --text: #2d3436;
+    --border: #dcdde1;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; font-family: 'Kantumruy Pro', sans-serif; }
+
+body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+
+/* Layout ឆ្វេង-ស្តាំ សម្រាប់ Desktop */
+.tts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+@media (min-width: 850px) {
+    .tts-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
+}
+
+/* រចនាប័ទ្ម Card និង Input */
+.qr-config-group {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.qr-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: block;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #f8f9fa;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus, textarea:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+/* ប៊ូតុងមេ */
+.btn-main {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+}
+
+/* ផ្នែកបង្ហាញលទ្ធផល (Output Display) */
+.tts-output {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 20px;
+}
+
+.qr-preview-card {
+    background: white;
+    padding: 25px;
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Unit Converter Chips */
+.unit-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.unit-chip {
+    padding: 10px;
+    border-radius: 12px;
+    background: #f1f2f6;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.unit-chip.active {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Color Picker Preview */
+#colorPreview {
+    width: 100%;
+    height: 180px;
+    border-radius: 25px;
+    margin-bottom: 15px;
+    border: 5px solid white;
+    box-shadow: var(--shadow);
+}
+.pass-option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.pass-display-box {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 5px 15px;
+    border: 2px solid var(--border);
+    margin-bottom: 15px;
+}
+
+.pass-display-box input {
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: left;
+    padding: 10px 0;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.refresh-btn:hover { transform: rotate(180deg); }
+
+/* Custom Switch Style */
+.apple-switch {
+    width: 50px;
+    height: 26px;
+    appearance: none;
+    background: #d1d1d6;
+    border-radius: 13px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.apple-switch:checked { background: #34c759; }
+
+.apple-switch::before {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.apple-switch:checked::before { transform: translateX(24px); }
 
     </style>
 </head>
@@ -145,10 +523,56 @@ footer {
     <div id="home" class="page active">
         <div class="tools-grid">
             <div class="tool-card" onclick="showPage('tts')">
-                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3917/3917655.png"></div>
+                <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2845/2845878.png"></div>
                 <span class="ui-text" data-en="Text to Speech" data-kh="អត្ថបទទៅសម្លេង">Text to Speech</span>
             </div>
+            <div class="tool-card" onclick="showPage('lucky-spin')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/8254/8254576.png">
+    </div>
+    <span class="ui-text" data-en="Lucky Spin" data-kh="កង់ផ្សងសំណាង">Lucky Spin</span>
+</div>
+<div class="tool-card" onclick="showPage('qrcode-gen')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/8555/8555155.png">
+    </div>
+    <span class="ui-text" data-en="QR Generator" data-kh="បង្កើត QR Code">QR Generator</span>
+</div>
+<div class="tool-card" onclick="showPage('ocr-tool')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/18140/18140616.png">
+    </div>
+    <span class="ui-text" data-en="Image to Text" data-kh="ស្រង់អក្សរពីរូបភាព">Image to Text</span>
+</div>
+<div class="tool-card" onclick="showPage('unit-converter')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+    </div>
+    <span class="ui-text" data-en="Unit Converter" data-kh="កម្មវិធីប្តូរខ្នាត">Unit Converter</span>
+</div>
+<div class="tool-card" onclick="showPage('color-picker')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/2071/2071514.png">
+    </div>
+    <span class="ui-text" data-en="Color Tool" data-kh="ឧបករណ៍រើសពណ៌">Color Tool</span>
+</div>
+
+<div class="tool-card" onclick="showPage('pass-gen')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/12061/12061210.png">
+    </div>
+    <span class="ui-text" data-en="Password Gen" data-kh="បង្កើតលេខសម្ងាត់">Password Gen</span>
+</div>
+
             </div>
+            <amp-ad width="320" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-6376718493759245"
+     data-ad-slot="2893900101"
+     data-auto-format="rspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad>
     </div>
 
     <div id="tts" class="page">
@@ -198,6 +622,259 @@ footer {
             </div>
         </div>
     </div>
+<div id="lucky-spin" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Lucky Spin" data-kh="កង់ផ្សងសំណាង">Lucky Spin</h2>
+            <div class="tts-output" style="text-align: center; position: relative;">
+            <div style="width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ff4757; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10;"></div>
+            <canvas id="wheelCanvas" width="600" height="600" style="width:300px; height:300px; border-radius: 50%; border: 5px solid var(--border); transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);"></canvas>
+            
+            <div id="spinResult" class="spin-popup">
+                <div class="ui-text" data-en="Winner!" data-kh="អ្នកឈ្នះគឺ៖">Winner!</div>
+                <h1 id="winnerName">...</h1>
+                <button onclick="closeSpinResult()" class="switch-btn">OK</button>
+            </div>
+        </div>
+
+    <div class="tts-container"> <div class="tts-input">
+            <textarea id="spinOptions" class="ui-placeholder" data-en-ph="Enter options (e.g. Pizza, Burger)" data-kh-ph="បញ្ចូលជម្រើស (ឧទាហរណ៍៖ បាយ, មី)" style="height: 150px;" oninput="updateWheel()">
+Pizza
+Burger
+Hot Dog
+Sandwich
+Bread
+Wilk
+Coca Cola
+Pepsi
+
+</textarea>
+            <button class="btn-main" onclick="spinWheel()" id="spinBtn">SPIN! 🎰</button>
+            <div class="action-btns" style="margin-top: 10px;">
+    <button onclick="document.getElementById('spinOptions').value=''; updateWheel();" class="switch-btn" style="color: #ff4757;">Clear All</button>
+</div>
+
+        </div>
+
+
+    </div>
+</div>
+<div id="qrcode-gen" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="QR Generator" data-kh="បង្កើត QR Code">QR Generator</h2>
+
+    <div class="tts-container">
+        <div class="tts-input">
+            <div class="qr-config-group">
+                <span class="qr-label ui-text" data-en="Data Type" data-kh="ប្រភេទព័ត៌មាន">Data Type</span>
+                <select id="qrType" onchange="updateQRFields()" style="margin-bottom:0;">
+                    <option value="text">Text / Link</option>
+                    <option value="wifi">WiFi Setup</option>
+                    <option value="email">Email Draft</option>
+                </select>
+            </div>
+
+            <div id="qrFields" class="qr-config-group">
+                </div>
+
+            <div class="qr-config-group">
+                <div class="qr-input-grid">
+                    <div>
+                        <span class="qr-label ui-text" data-en="Design Style" data-kh="ម៉ូត QR">Design Style</span>
+                        <select id="qrStyle" onchange="generateQR()">
+                            <option value="square">Square</option>
+                            <option value="dots">Dots</option>
+                            <option value="rounded">Rounded</option>
+                            <option value="extra-rounded">Classy</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="qr-label ui-text" data-en="Logo" data-kh="រូបសញ្ញា">Logo</span>
+                        <label class="custom-file-upload">
+                            <input type="file" id="qrLogo" accept="image/*" onchange="generateQR()" style="display:none;">
+                            Choose Logo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qr-config-group">
+                <div class="qr-input-grid">
+                    <div>
+                        <span class="qr-label ui-text" data-en="QR Color" data-kh="ពណ៌ QR">QR Color</span>
+                        <input type="color" id="qrColor" value="#000000" oninput="generateQR()" style="width:100%; height:40px; border-radius:10px; border:none; cursor:pointer;">
+                    </div>
+                    <div>
+                        <span class="qr-label ui-text" data-en="Background" data-kh="ពណ៌ផ្ទៃ">Background</span>
+                        <input type="color" id="bgColor" value="#ffffff" oninput="generateQR()" style="width:100%; height:40px; border-radius:10px; border:none; cursor:pointer;">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-main ui-text" data-en="Download PNG" data-kh="ទាញយក PNG" onclick="downloadQR()">Download PNG</button>
+        </div>
+
+        <div class="tts-output" style="display: flex; justify-content: center; align-items: start;">
+            <div class="qr-preview-card">
+                <div id="qrCanvas"></div>
+                <div style="margin-top:15px; font-weight:700; color:#333; opacity:0.5; font-size:12px;">Akima Tools QR Engine</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ocr-tool" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Advanced OCR" data-kh="ស្រង់អក្សរកម្រិតខ្ពស់">Advanced OCR</h2>
+
+    <div class="tts-container">
+        <div class="tts-input">
+            <div class="qr-config-group">
+                <span class="qr-label">Step 1: Upload Image</span>
+                <label class="custom-file-upload">
+                    <input type="file" id="ocrUpload" accept="image/*" onchange="processImage()" style="display:none;">
+                    📷 Take Photo / Upload
+                </label>
+            </div>
+            
+            <div id="loader" class="loading-spinner"></div>
+            <div id="ocrStatus" style="font-size: 13px; font-weight: bold; text-align: center; color: var(--primary);"></div>
+
+            <div id="imagePreviewContainer" style="display:none; position: relative; margin-top: 15px;">
+                <canvas id="ocrCanvas" style="max-width: 100%; border-radius: 10px; border: 2px solid var(--primary);"></canvas>
+                <p style="font-size: 10px; color: gray; margin-top: 5px;">*រូបភាពត្រូវបានកែសម្រួលកម្រិត Contrast ដើម្បីឱ្យស្រង់អក្សរបានច្បាស់</p>
+            </div>
+        </div>
+
+        <div class="tts-output">
+            <span class="qr-label">Step 2: Result</span>
+            <textarea id="ocrResult" style="height: 280px; font-family: 'Kantumruy Pro', sans-serif;" placeholder="អត្ថបទដែលស្រង់បាននឹងបង្ហាញនៅទីនេះ..."></textarea>
+            <button class="btn-main" onclick="copyOCRText()">📋 Copy Text</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="unit-converter" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Unit Converter" data-kh="កម្មវិធីប្តូរខ្នាត">Unit Converter</h2>
+
+    <div class="tts-container">
+        <div class="tts-input">
+            <div class="unit-card-group">
+                <div class="unit-type-btn active" onclick="setCategory('length', this)">📏 Length</div>
+                <div class="unit-type-btn" onclick="setCategory('weight', this)">⚖️ Weight</div>
+                <div class="unit-type-btn" onclick="setCategory('temp', this)">🌡️ Temp</div>
+            </div>
+
+            <div class="unit-input-box">
+                <span class="qr-label">From Value</span>
+                <input type="number" id="unitInput" value="1" oninput="convertUnit()">
+                <div id="fromUnitChips" class="unit-selector-grid"></div>
+            </div>
+
+            <div style="text-align: center; margin: 15px 0; font-size: 20px;">⬇️</div>
+
+            <div class="unit-input-box" style="border-color: var(--primary); background: #f8fbff;">
+                <span class="qr-label">Result</span>
+                <div id="unitResult" style="font-size: 35px; font-weight: 800; color: #2d3436;">1.00</div>
+                <div id="toUnitChips" class="unit-selector-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="color-picker" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Advanced Color Tool" data-kh="ឧបករណ៍រើសពណ៌កម្រិតខ្ពស់">Advanced Color Tool</h2>
+
+    <div class="tts-container">
+        <div class="tts-input">
+            <div class="qr-config-group" style="text-align: center;">
+                <span class="qr-label ui-text" data-en="Pick Color" data-kh="ជ្រើសរើសពណ៌">Pick Color</span>
+                <div id="pickerHolder" style="display: inline-block; margin: 10px 0;"></div>
+            </div>
+
+            <div class="qr-config-group">
+                <div class="qr-input-grid">
+                    <div>
+                        <span class="qr-label">HEX</span>
+                        <input type="text" id="hexVal" readonly onclick="copyVal(this)" style="cursor: pointer; font-weight: bold; color: var(--primary);">
+                    </div>
+                    <div>
+                        <span class="qr-label">RGB</span>
+                        <input type="text" id="rgbVal" readonly onclick="copyVal(this)" style="cursor: pointer;">
+                    </div>
+                </div>
+                <div class="qr-input-grid" style="margin-top: 10px;">
+                    <div>
+                        <span class="qr-label">HSL</span>
+                        <input type="text" id="hslVal" readonly onclick="copyVal(this)" style="cursor: pointer;">
+                    </div>
+                </div>
+            </div>
+            <p style="font-size: 11px; color: gray;" class="ui-text" data-en="*Click code to copy" data-kh="*ចុចលើលេខកូដដើម្បីចម្លង">*Click code to copy</p>
+        </div>
+
+        <div class="tts-output">
+            <div id="colorPreview" style="width:100%; height:180px; border-radius:25px; display:flex; align-items:center; justify-content:center; flex-direction:column; transition: 0.3s; border: 5px solid white; box-shadow: var(--shadow);">
+                <h1 id="previewText" style="margin:0; font-size: 30px;">Akima Tools</h1>
+                <p style="margin:0; font-size:12px; font-weight: bold;" class="ui-text" data-en="Contrast Preview" data-kh="ការបង្ហាញពណ៌">Contrast Preview</p>
+            </div>
+            
+            <div class="qr-label ui-text" data-en="Suggested Palette" data-kh="ឈុតពណ៌ណែនាំ" style="margin-top:20px; font-weight: bold;">Suggested Palette</div>
+            <div id="paletteBox" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:10px;"></div>
+        </div>
+    </div>
+</div>
+<div id="pass-gen" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    
+    <div class="tts-container">
+        <div class="tts-input">
+            <div class="qr-config-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span class="qr-label ui-text" data-en="Length" data-kh="ប្រវែង" style="margin:0;">Length</span>
+                    <b id="lenVal" style="font-size: 20px; color: var(--primary); background: var(--primary-light); padding: 5px 15px; border-radius: 10px;">12</b>
+                </div>
+                <input type="range" id="passLength" min="6" max="32" value="12" oninput="updatePassLenText(); generatePass();">
+            </div>
+
+            <div class="qr-config-group" style="padding: 10px 20px;">
+                <div class="pass-option-row">
+                    <span class="ui-text" data-en="Uppercase (ABC)" data-kh="អក្សរធំ (ABC)">Uppercase (ABC)</span>
+                    <input type="checkbox" id="pUpper" checked onchange="generatePass()" class="apple-switch">
+                </div>
+                <div class="pass-option-row">
+                    <span class="ui-text" data-en="Lowercase (abc)" data-kh="អក្សរតូច (abc)">Lowercase (abc)</span>
+                    <input type="checkbox" id="pLower" checked onchange="generatePass()" class="apple-switch">
+                </div>
+                <div class="pass-option-row">
+                    <span class="ui-text" data-en="Numbers (123)" data-kh="លេខ (123)">Numbers (123)</span>
+                    <input type="checkbox" id="pNumber" checked onchange="generatePass()" class="apple-switch">
+                </div>
+                <div class="pass-option-row" style="border:none;">
+                    <span class="ui-text" data-en="Symbols (!@#)" data-kh="និមិត្តសញ្ញា (!@#)">Symbols (!@#)</span>
+                    <input type="checkbox" id="pSymbol" onchange="generatePass()" class="apple-switch">
+                </div>
+            </div>
+        </div>
+
+        <div class="tts-output">
+            <div class="qr-preview-card">
+                <div class="pass-display-box">
+                    <input type="text" id="passResult" readonly>
+                    <button onclick="generatePass()" class="refresh-btn">🔄</button>
+                </div>
+                
+                <div id="strengthBar"><div id="strengthFill"></div></div>
+                <p id="strengthText" style="margin-top: 10px; font-weight: bold;"></p>
+
+                <button class="btn-main ui-text" data-en="Copy Password" data-kh="ចម្លងលេខសម្ងាត់" onclick="copyPass()" style="margin-top: 20px;">Copy Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
         <footer>
         <div style="font-size: 13px; opacity: 0.6;" class="ui-text" data-en="Support" data-kh="ជំនួយ">Support</div>
         <div class="footer-links">
@@ -327,15 +1004,15 @@ function togglePlay() {
     }
     const contentData = {
     terms: {
-        en: `<h1>Terms & Conditions</h1><p>Last Updated: March 2026</p><h2>Use of Service</h2><p>You agree to use Akima Tools only for legal purposes and not misuse the service.</p><h2>Tools Functionality</h2><p>Akima Tools provides free online tools such as text-to-speech. Results may vary and we do not guarantee accuracy.</p><h2>Prohibited Use</h2><ul><li>Illegal activity</li><li>Abuse of our system</li><li>Uploading harmful content</li></ul><h2>Limitation of Liability</h2><p>Akima Tools is not responsible for any damages caused by the use of our tools.</p>`,
-        kh: `<h1>គោលការណ៍ប្រើប្រាស់</h1><p>កាលបរិច្ឆេទចុងក្រោយ៖ មីនា ២០២៦</p><h2>ការប្រើប្រាស់សេវាកម្ម</h2><p>អ្នកយល់ព្រមប្រើប្រាស់ Akima Tools សម្រាប់តែគោលបំណងស្របច្បាប់ និងមិនប្រើប្រាស់ក្នុងផ្លូវខុស។</p><h2>មុខងារឧបករណ៍</h2><p>Akima Tools ផ្តល់ឧបករណ៍អនឡាញឥតគិតថ្លៃដូចជា ការប្តូរអត្ថបទទៅជាសម្លេង។ លទ្ធផលអាចមានការប្រែប្រួល ហើយយើងមិនធានានូវភាពត្រឹមត្រូវទាំងស្រុងនោះទេ។</p><h2>ការហាមឃាត់</h2><ul><li>សកម្មភាពខុសច្បាប់</li><li>ការរំលោភបំពានលើប្រព័ន្ធរបស់យើង</li><li>ការបង្ហោះមាតិកាដែលមានគ្រោះថ្នាក់</li></ul>`
+        en: `<h1>Terms & Conditions</h1><p>Last Updated: March 2026</p><h2>Use of Service</h2><p>You agree to use Akima Tools only for legal purposes and not misuse the service.</p><h2>Tools Functionality</h2><p>Ny Tools provides free online tools such as text-to-speech. Results may vary and we do not guarantee accuracy.</p><h2>Prohibited Use</h2><ul><li>Illegal activity</li><li>Abuse of our system</li><li>Uploading harmful content</li></ul><h2>Limitation of Liability</h2><p>Akima Tools is not responsible for any damages caused by the use of our tools.</p>`,
+        kh: `<h1>គោលការណ៍ប្រើប្រាស់</h1><p>កាលបរិច្ឆេទចុងក្រោយ៖ មីនា ២០២៦</p><h2>ការប្រើប្រាស់សេវាកម្ម</h2><p>អ្នកយល់ព្រមប្រើប្រាស់ Akima Tools សម្រាប់តែគោលបំណងស្របច្បាប់ និងមិនប្រើប្រាស់ក្នុងផ្លូវខុស។</p><h2>មុខងារឧបករណ៍</h2><p>Ny Tools ផ្តល់ឧបករណ៍អនឡាញឥតគិតថ្លៃដូចជា ការប្តូរអត្ថបទទៅជាសម្លេង។ លទ្ធផលអាចមានការប្រែប្រួល ហើយយើងមិនធានានូវភាពត្រឹមត្រូវទាំងស្រុងនោះទេ។</p><h2>ការហាមឃាត់</h2><ul><li>សកម្មភាពខុសច្បាប់</li><li>ការរំលោភបំពានលើប្រព័ន្ធរបស់យើង</li><li>ការបង្ហោះមាតិកាដែលមានគ្រោះថ្នាក់</li></ul>`
     },
     privacy: {
         en: `<h1>Privacy Policy</h1><p>Last Updated: March 2026</p><h2>Information We Collect</h2><p>Text you input into our tools may be temporarily processed to generate results.</p><h2>Usage Data</h2><p>We may collect basic technical information such as browser type and device information.</p><h2>Cookies</h2><p>We may use cookies or local storage to remember settings like language or theme.</p><h2>Third Party Services</h2><p>Some tools may use third-party APIs to generate results.</p>`,
         kh: `<h1>គោលការណ៍ឯកជនភាព</h1><p>កាលបរិច្ឆេទចុងក្រោយ៖ មីនា ២០២៦</p><h2>ព័ត៌មានដែលយើងប្រមូល</h2><p>អត្ថបទដែលអ្នកបញ្ចូលទៅក្នុងឧបករណ៍របស់យើង អាចនឹងត្រូវដំណើរការជាបណ្តោះអាសន្នដើម្បីបង្កើតលទ្ធផល។</p><h2>ទិន្នន័យប្រើប្រាស់</h2><p>យើងអាចប្រមូលព័ត៌មានបច្ចេកទេសមូលដ្ឋានដូចជា ប្រភេទកម្មវិធីរុករក (Browser) និងព័ត៌មានឧបករណ៍។</p><h2>Cookies</h2><p>យើងអាចប្រើប្រាស់ Cookies ឬ Local Storage ដើម្បីចងចាំការកំណត់ដូចជា ភាសា ឬស្បែក (Theme)។</p>`
     },
     about: {
-        en: `<h1>About Akima Tools</h1><p>Akima Tools is a free online tools website designed to help users perform useful tasks quickly and easily.</p><ul><li>Text to Speech</li><li>Online utilities</li><li>Future AI tools</li></ul><p>Thank you for using Akima Tools.</p>`,
+        en: `<h1>About Akima Tools</h1><p>Akima Tools is a free online tools website designed to help users perform useful tasks quickly and easily.</p><ul><li>Text to Speech</li><li>Online utilities</li><li>Future AI tools</li></ul><p>Thank you for using Ny Tools.</p>`,
         kh: `<h1>អំពី Akima Tools</h1><p>Akima Tools គឺជាគេហទំព័រឧបករណ៍អនឡាញឥតគិតថ្លៃ ដែលត្រូវបានរចនាឡើងដើម្បីជួយអ្នកប្រើប្រាស់បំពេញការងារដែលមានប្រយោជន៍បានយ៉ាងរហ័ស និងងាយស្រួល។</p><ul><li>អត្ថបទទៅជាសម្លេង</li><li>ឧបករណ៍ប្រើប្រាស់អនឡាញ</li><li>ឧបករណ៍ AI នាពេលអនាគត</li></ul><p>សូមអរគុណសម្រាប់ការប្រើប្រាស់ Akima Tools។</p>`
     }
 };
@@ -351,6 +1028,742 @@ function closeModal(e) {
         document.getElementById('infoModal').style.display = 'none';
     }
 }
+let options = [];
+let currentRotation = 0;
+
+function updateWheel() {
+    const text = document.getElementById('spinOptions').value;
+    options = text.split(/[,|\n]+/).map(s => s.trim()).filter(s => s !== "");
+    drawWheel();
+}
+
+function drawWheel() {
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const size = canvas.width;
+    const center = size / 2;
+    const sliceAngle = (2 * Math.PI) / options.length;
+
+    ctx.clearRect(0, 0, size, size);
+
+    options.forEach((opt, i) => {
+        ctx.beginPath();
+        ctx.fillStyle = `hsl(${i * (360 / options.length)}, 70%, 60%)`;
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, center, i * sliceAngle, (i + 1) * sliceAngle);
+        ctx.fill();
+
+        // ដាក់អក្សរ
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 14px Kantumruy Pro";
+        ctx.fillText(opt.substring(0, 8), center / 2.5, 5);
+        ctx.restore();
+    });
+}
+
+function spinWheel() {
+    if (options.length < 2) return alert("សូមបញ្ចូលយ៉ាងតិច ២ ជម្រើស!");
+    const btn = document.getElementById('spinBtn');
+    btn.disabled = true;
+
+    const extraSpin = Math.floor(Math.random() * 360) + 1800; // វិលយ៉ាងតិច ៥ ជុំ
+    currentRotation += extraSpin;
+    
+    const canvas = document.getElementById('wheelCanvas');
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(() => {
+        btn.disabled = false;
+        // គណនាអ្នកឈ្នះ (ជម្រើសដែលនៅចំម្ជុល)
+var end = Date.now() + (2 * 1000); // បាញ់រយៈពេល ២ វិនាទី
+
+(function frame() {
+  confetti({
+    particleCount: 3,
+    angle: 60,
+    spread: 55,
+    origin: { x: 0 },
+    colors: ['#007bff', '#6f42c1']
+  });
+  confetti({
+    particleCount: 3,
+    angle: 120,
+    spread: 55,
+    origin: { x: 1 },
+    colors: ['#ff4757', '#ffbc00']
+  });
+
+  if (Date.now() < end) {
+    requestAnimationFrame(frame);
+  }
+}());
+
+        const actualDeg = currentRotation % 360;
+        const sliceDeg = 360 / options.length;
+        const winningIndex = Math.floor((360 - (actualDeg - 270)) % 360 / sliceDeg);
+        document.getElementById('winnerName').innerText = options[winningIndex];
+    document.getElementById('spinResult').style.display = 'block';
+        alert("លទ្ធផលគឺ៖ " + options[winningIndex]);
+    }, 4100);
+}
+
+// ហៅឱ្យវាបង្ហាញដំបូង
+setTimeout(updateWheel, 500);
+// បង្កើតសំឡេង Tick ពេលកង់វិលកាត់ម្ជុល
+function playTickSound() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+}
+
+// បង្កើត AudioContext តែមួយទុកប្រើរួមគ្នា
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTickSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume(); // បើកសំឡេងឡើងវិញបើវាផ្អាក
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function playWinSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+    notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.15);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.15 + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + i * 0.15);
+        osc.stop(audioCtx.currentTime + i * 0.15 + 0.4);
+    });
+}
+
+
+function drawWheel() {
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const size = canvas.width; // 600px សម្រាប់ Resolution ច្បាស់
+    const center = size / 2;
+    const radius = center - 10;
+    const sliceAngle = (2 * Math.PI) / options.length;
+
+    ctx.clearRect(0, 0, size, size);
+
+    options.forEach((opt, i) => {
+        // គូរចម្រៀកកង់
+        ctx.beginPath();
+        ctx.fillStyle = `hsl(${i * (360 / options.length)}, 75%, 55%)`;
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, i * sliceAngle, (i + 1) * sliceAngle);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+
+        // ដាក់អក្សរឱ្យចំកណ្តាល និងច្បាស់
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(i * sliceAngle + sliceAngle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "white";
+        ctx.font = "bold 24px Kantumruy Pro"; // អក្សរធំ និងច្បាស់
+        ctx.fillText(opt, radius - 30, 10);
+        ctx.restore();
+    });
+}
+
+function spinWheel() {
+    if (options.length < 2) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume(); // បើកដំណើរការ Audio ប្រព័ន្ធ
+
+    const btn = document.getElementById('spinBtn');
+    const canvas = document.getElementById('wheelCanvas');
+    btn.disabled = true;
+    document.getElementById('spinResult').style.display = 'none';
+
+    const extraSpin = Math.floor(Math.random() * 360) + 2880; // វិល ៨ ជុំ
+    currentRotation += extraSpin;
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+    // បង្កើតសំឡេង Tick ដែលប្រែប្រួលតាមល្បឿន
+    let duration = 4000; // ៤ វិនាទី
+    let startTime = performance.now();
+    
+    function doTick(now) {
+        let elapsed = now - startTime;
+        if (elapsed < duration) {
+            playTickSound();
+            // ល្បឿនដកឃ្លាសំឡេងនឹងកើនឡើងទៅតាមពេលវេលា (កាន់តែយឺតទៅៗ)
+            let nextTick = 100 + (Math.pow(elapsed / duration, 2) * 500); 
+            setTimeout(() => requestAnimationFrame(doTick), nextTick);
+        }
+    }
+    requestAnimationFrame(doTick);
+
+setTimeout(() => {
+    btn.disabled = false;
+    playWinSound(); // ចាក់សំឡេងជោគជ័យ
+
+    // បាញ់ផ្កាភ្លើងអបអរសាទរ
+var end = Date.now() + (2 * 1000); // បាញ់រយៈពេល ២ វិនាទី
+
+(function frame() {
+  confetti({
+    particleCount: 3,
+    angle: 60,
+    spread: 55,
+    origin: { x: 0 },
+    colors: ['#007bff', '#6f42c1']
+  });
+  confetti({
+    particleCount: 3,
+    angle: 120,
+    spread: 55,
+    origin: { x: 1 },
+    colors: ['#ff4757', '#ffbc00']
+  });
+
+  if (Date.now() < end) {
+    requestAnimationFrame(frame);
+  }
+}());
+
+
+    const actualDeg = currentRotation % 360;
+    const sliceDeg = 360 / options.length;
+    const winningIndex = Math.floor((360 - (actualDeg - 270)) % 360 / sliceDeg);
+    
+    document.getElementById('winnerName').innerText = options[winningIndex];
+    document.getElementById('spinResult').style.display = 'block';
+}, 4100);
+
+}
+
+
+function closeSpinResult() {
+    document.getElementById('spinResult').style.display = 'none';
+}
+
+let qrCode = new QRCodeStyling({
+    width: 1000,   // បង្កើនទំហំ Render ឱ្យធំដើម្បីភាពច្បាស់
+    height: 1000,
+    margin: 15,    // Margin តាមដែលអ្នកចង់បាន
+    type: "canvas", // ប្រើ Canvas ដើម្បីឱ្យរូបភាពច្បាស់ល្អ
+    dotsOptions: { 
+        color: "#000000", 
+        type: "square" 
+    },
+    backgroundOptions: { color: "#ffffff" },
+    imageOptions: { 
+        crossOrigin: "anonymous", 
+        margin: 10,
+        imageSize: 0.4 // កំណត់ទំហំ Logo ឱ្យល្មមស្អាត
+    }
+});
+
+
+function updateQRFields() {
+    const type = document.getElementById('qrType').value;
+    const fields = document.getElementById('qrFields');
+    if (type === 'wifi') {
+        fields.innerHTML = `
+            <input type="text" id="ssid" placeholder="WiFi Name (SSID)" oninput="generateQR()">
+            <input type="text" id="pass" placeholder="Password" oninput="generateQR()">
+        `;
+    } else if (type === 'email') {
+        fields.innerHTML = `
+            <input type="text" id="mailTo" placeholder="Email to" oninput="generateQR()">
+            <input type="text" id="mailSub" placeholder="Subject" oninput="generateQR()">
+            <textarea id="mailBody" placeholder="Message body" oninput="generateQR()"></textarea>
+        `;
+    } else {
+        fields.innerHTML = `<textarea id="qrData" placeholder="Enter link or text..." oninput="generateQR()"></textarea>`;
+    }
+    generateQR();
+}
+
+async function generateQR() {
+    const type = document.getElementById('qrType').value;
+    let finalData = "";
+
+    if (type === 'wifi') {
+        finalData = `WIFI:S:${document.getElementById('ssid').value};T:WPA;P:${document.getElementById('pass').value};;`;
+    } else if (type === 'email') {
+        finalData = `mailto:${document.getElementById('mailTo').value}?subject=${encodeURIComponent(document.getElementById('mailSub').value)}&body=${encodeURIComponent(document.getElementById('mailBody').value)}`;
+    } else {
+        finalData = document.getElementById('qrData')?.value || "";
+    }
+
+    if (!finalData) return;
+
+    // Logo Processing
+const logoFile = document.getElementById('qrLogo').files[0];
+    let logoUrl = "";
+    if (logoFile) {
+        logoUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(logoFile);
+        });
+    }
+
+    qrCode.update({
+        data: finalData,
+        dotsOptions: { 
+            color: document.getElementById('qrColor').value, 
+            type: document.getElementById('qrStyle').value 
+        },
+        backgroundOptions: { 
+            color: document.getElementById('bgColor').value 
+        },
+        image: logoUrl,
+        // បន្ថែមត្រង់នេះដើម្បីឱ្យគុណភាពខ្ពស់បំផុត
+        qrOptions: { errorCorrectionLevel: 'H' } 
+    });
+
+    const canvasDiv = document.getElementById('qrCanvas');
+    canvasDiv.innerHTML = "";
+    qrCode.append(canvasDiv);
+}
+function downloadQR() {
+    qrCode.download({ name: "ny-qrcode", extension: "png" });
+}
+
+// ហៅឱ្យដើរដំបូង
+setTimeout(updateQRFields, 500);
+function updateQRFields() {
+    const type = document.getElementById('qrType').value;
+    const fields = document.getElementById('qrFields');
+    const lang = document.getElementById('langBtn').innerText === 'EN' ? 'kh' : 'en';
+
+    if (type === 'wifi') {
+        fields.innerHTML = `
+            <span class="qr-label">${lang === 'kh' ? 'ព័ត៌មាន WiFi' : 'WiFi Info'}</span>
+            <input type="text" id="ssid" placeholder="Network Name (SSID)" oninput="generateQR()" style="margin-bottom:8px;">
+            <input type="text" id="pass" placeholder="Password" oninput="generateQR()">
+        `;
+    } else if (type === 'email') {
+        fields.innerHTML = `
+            <span class="qr-label">${lang === 'kh' ? 'សេចក្តីព្រាង Email' : 'Email Draft'}</span>
+            <input type="email" id="mailTo" placeholder="Recipient Email" oninput="generateQR()" style="margin-bottom:8px;">
+            <input type="text" id="mailSub" placeholder="Subject" oninput="generateQR()" style="margin-bottom:8px;">
+            <textarea id="mailBody" placeholder="Message content..." oninput="generateQR()" style="height:80px;"></textarea>
+        `;
+    } else {
+        fields.innerHTML = `
+            <span class="qr-label">${lang === 'kh' ? 'អត្ថបទ ឬ តំណភ្ជាប់' : 'Text or Link'}</span>
+            <textarea id="qrData" placeholder="https://..." oninput="generateQR()" style="height:100px;"></textarea>
+        `;
+    }
+    generateQR();
+}
+async function processImage() {
+    const file = document.getElementById('ocrUpload').files[0];
+    const status = document.getElementById('ocrStatus');
+    const loader = document.getElementById('loader');
+    const resultArea = document.getElementById('ocrResult');
+    const canvas = document.getElementById('ocrCanvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!file) return;
+
+    loader.style.display = "block";
+    status.innerText = "កំពុងរៀបចំរូបភាព...";
+    
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = async () => {
+        // ១. កែច្នៃរូបភាពឱ្យច្បាស់ (Pre-processing)
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.filter = 'grayscale(100%) contrast(150%) brightness(110%)'; // ធ្វើឱ្យអក្សរខ្មៅដិត និងផ្ទៃសស្អាត
+        ctx.drawImage(img, 0, 0);
+        document.getElementById('imagePreviewContainer').style.display = "block";
+
+        status.innerText = "កំពុងស្រង់អក្សរ (ខ្មែរ + English)...";
+
+        try {
+            // ២. ប្រើ Tesseract អានរូបភាពដែលបានកែច្នៃរួច
+            const result = await Tesseract.recognize(canvas.toDataURL(), 'khm+eng', {
+                logger: m => {
+                    if(m.status === 'recognizing text') {
+                        status.innerText = `កំពុងអាន: ${Math.round(m.progress * 100)}%`;
+                    }
+                }
+            });
+
+            // ៣. លទ្ធផល
+            resultArea.value = result.data.text.trim();
+            status.innerText = "ស្រង់អក្សរបានជោគជ័យ! ✅";
+        } catch (e) {
+            status.innerText = "មានបញ្ហាបច្ចេកទេស! ❌";
+        } finally {
+            loader.style.display = "none";
+        }
+    };
+}
+
+
+function copyOCRText() {
+    const text = document.getElementById('ocrResult');
+    text.select();
+    document.execCommand('copy');
+    alert("Text copied to clipboard!");
+}
+const units = {
+    length: {
+        m: { name: "Meters", rate: 1 },
+        km: { name: "Kilometers", rate: 0.001 },
+        cm: { name: "Centimeters", rate: 100 },
+        mm: { name: "Millimeters", rate: 1000 },
+        inch: { name: "Inches", rate: 39.3701 },
+        ft: { name: "Feet", rate: 3.28084 }
+    },
+    weight: {
+        kg: { name: "Kilograms", rate: 1 },
+        g: { name: "Grams", rate: 1000 },
+        lb: { name: "Pounds", rate: 2.20462 },
+        oz: { name: "Ounces", rate: 35.274 }
+    }
+};
+
+function updateUnitOptions() {
+    const cat = document.getElementById('unitCategory').value;
+    const from = document.getElementById('fromUnit');
+    const to = document.getElementById('toUnit');
+    
+    if (cat === 'temp') {
+        from.innerHTML = `<option value="c">Celsius</option><option value="f">Fahrenheit</option>`;
+        to.innerHTML = `<option value="f">Fahrenheit</option><option value="c">Celsius</option>`;
+    } else {
+        let options = "";
+        for (let key in units[cat]) {
+            options += `<option value="${key}">${units[cat][key].name}</option>`;
+        }
+        from.innerHTML = options;
+        to.innerHTML = options;
+    }
+    convertUnit();
+}
+
+function convertUnit() {
+    const cat = document.getElementById('unitCategory').value;
+    const val = parseFloat(document.getElementById('unitInput').value) || 0;
+    const from = document.getElementById('fromUnit').value;
+    const to = document.getElementById('toUnit').value;
+    const resultDisplay = document.getElementById('unitResult');
+    
+    let res = 0;
+    if (cat === 'temp') {
+        if (from === to) res = val;
+        else if (from === 'c') res = (val * 9/5) + 32;
+        else res = (val - 32) * 5/9;
+    } else {
+        const base = val / units[cat][from].rate;
+        res = base * units[cat][to].rate;
+    }
+    
+    resultDisplay.innerText = res.toLocaleString(undefined, {maximumFractionDigits: 4});
+    document.getElementById('unitSymbol').innerText = to.toUpperCase();
+}
+let currentCat = 'length';
+let selectedFrom = '';
+let selectedTo = '';
+
+function setCategory(cat, btn) {
+    currentCat = cat;
+    document.querySelectorAll('.unit-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // កំណត់ខ្នាតដំបូង
+    const keys = cat === 'temp' ? ['c', 'f'] : Object.keys(units[cat]);
+    selectedFrom = keys[0];
+    selectedTo = keys[1] || keys[0];
+    
+    renderChips();
+    convertUnit();
+}
+
+function renderChips() {
+    const fromContainer = document.getElementById('fromUnitChips');
+    const toContainer = document.getElementById('toUnitChips');
+    fromContainer.innerHTML = "";
+    toContainer.innerHTML = "";
+
+    const keys = currentCat === 'temp' ? {c:'Celsius', f:'Fahrenheit'} : units[currentCat];
+    
+    for (let key in keys) {
+        const name = currentCat === 'temp' ? keys[key] : keys[key].name;
+        
+        // Chip សម្រាប់ From
+        const fChip = document.createElement('div');
+        fChip.className = `unit-chip ${selectedFrom === key ? 'active' : ''}`;
+        fChip.innerText = name;
+        fChip.onclick = () => { selectedFrom = key; renderChips(); convertUnit(); };
+        fromContainer.appendChild(fChip);
+
+        // Chip សម្រាប់ To
+        const tChip = document.createElement('div');
+        tChip.className = `unit-chip ${selectedTo === key ? 'active' : ''}`;
+        tChip.innerText = name;
+        tChip.onclick = () => { selectedTo = key; renderChips(); convertUnit(); };
+        toContainer.appendChild(tChip);
+    }
+}
+
+function convertUnit() {
+    const val = parseFloat(document.getElementById('unitInput').value) || 0;
+    const resultDisplay = document.getElementById('unitResult');
+    let res = 0;
+
+    if (currentCat === 'temp') {
+        if (selectedFrom === selectedTo) res = val;
+        else if (selectedFrom === 'c') res = (val * 9/5) + 32;
+        else res = (val - 32) * 5/9;
+    } else {
+        const base = val / units[currentCat][selectedFrom].rate;
+        res = base * units[currentCat][selectedTo].rate;
+    }
+
+    resultDisplay.innerText = res.toLocaleString(undefined, {maximumFractionDigits: 4});
+}
+
+// ហៅឱ្យដើរដំបូង
+setTimeout(() => setCategory('length', document.querySelector('.unit-type-btn')), 500);
+
+// ហៅឱ្យដើរដំបូង
+setTimeout(updateUnitOptions, 1000);
+let colorPicker = null;
+
+// បង្កើត Color Picker ពេលទំព័រដើរដំបូង
+window.addEventListener('load', () => {
+    colorPicker = new iro.ColorPicker("#pickerHolder", {
+        width: 250,
+        color: "#007bff",
+        borderWidth: 2,
+        borderColor: "#ffffff",
+        layout: [
+            { component: iro.ui.Wheel, options: {} }, // វង់កង់ពណ៌
+            { component: iro.ui.Slider, options: { sliderType: 'saturation' } }, // របារកម្រិតពណ៌
+            { component: iro.ui.Slider, options: { sliderType: 'value' } }, // របារពន្លឺ
+        ]
+    });
+
+    // ចាប់យកព្រឹត្តិការណ៍ពេលអ្នកប្រើប្តូរពណ៌
+    colorPicker.on('color:change', function(color) {
+        updateColorUI(color);
+    });
+
+    // បង្ហាញលទ្ធផលដំបូង
+    updateColorUI(colorPicker.color);
+});
+
+function updateColorUI(color) {
+    const hex = color.hexString;
+    const rgb = color.rgbString;
+    const hsl = color.hslString;
+    
+    const preview = document.getElementById('colorPreview');
+    const text = document.getElementById('previewText');
+    const hexInput = document.getElementById('hexVal');
+    const rgbInput = document.getElementById('rgbVal');
+    const hslInput = document.getElementById('hslVal');
+
+    // ប្តូរពណ៌ Preview និងលេខកូដ
+    preview.style.backgroundColor = hex;
+    hexInput.value = hex.toUpperCase();
+    rgbInput.value = rgb;
+    hslInput.value = hsl;
+
+    // គណនា Contrast ឱ្យអក្សរ ស ឬ ខ្មៅ
+    // ប្រើ brightness standard: (R*299 + G*587 + B*114) / 1000
+    const brightness = (color.rgb.r * 299 + color.rgb.g * 587 + color.rgb.b * 114) / 1000;
+    text.style.color = brightness > 128 ? '#000000' : '#ffffff';
+    
+    // បង្កើតឈុតពណ៌ (Palette)
+    generatePalette(hex);
+}
+
+function generatePalette(baseColor) {
+    const box = document.getElementById('paletteBox');
+    box.innerHTML = "";
+    
+    // បង្កើត ៥ ពណ៌ដែលមានកម្រិតពន្លឺខុសគ្នា (ពីដិតទៅខ្ចី)
+    const opacities = [1, 0.8, 0.6, 0.4, 0.2];
+    
+    opacities.forEach(op => {
+        const div = document.createElement('div');
+        div.style.height = "55px";
+        div.style.borderRadius = "12px";
+        div.style.backgroundColor = baseColor;
+        div.style.opacity = op;
+        div.style.cursor = "pointer";
+        div.style.border = "1px solid rgba(0,0,0,0.1)";
+        div.style.transition = "0.2s";
+        div.title = `Click to pick this shade (Opacity: ${op})`;
+        
+        div.onmouseover = () => div.style.transform = "scale(1.05)";
+        div.onmouseout = () => div.style.transform = "scale(1)";
+        
+        div.onclick = () => {
+            // ប្តូរពណ៌កង់រើសទៅពណ៌ដែលបានរើស
+            colorPicker.color.set(baseColor);
+            // កំណត់កម្រិត Opacity ទៅជាលទ្ធផលចុងក្រោយ
+            colorPicker.color.setChannel('rgb', 'a', op);
+        };
+        box.appendChild(div);
+    });
+}
+
+function copyVal(el) {
+    navigator.clipboard.writeText(el.value);
+    const original = el.value;
+    el.value = (currentLang === 'en' ? 'COPIED! ✅' : 'ចម្លងរួច! ✅');
+    setTimeout(() => el.value = original, 1000);
+}
+
+
+function generatePalette(baseColor) {
+    const box = document.getElementById('paletteBox');
+    box.innerHTML = "";
+    const opacities = [1, 0.8, 0.6, 0.4, 0.2];
+    
+    opacities.forEach(op => {
+        const div = document.createElement('div');
+        div.style.height = "50px";
+        div.style.borderRadius = "10px";
+        div.style.backgroundColor = baseColor;
+        div.style.opacity = op;
+        div.style.cursor = "pointer";
+        div.onclick = () => {
+            document.getElementById('colorInput').value = baseColor; // បែបសម្រាយ
+            updateColor();
+        };
+        box.appendChild(div);
+    });
+}
+
+function copyVal(el) {
+    navigator.clipboard.writeText(el.value);
+    const original = el.value;
+    el.value = "COPIED! ✅";
+    setTimeout(() => el.value = original, 1000);
+}
+function updatePassLenText() {
+    document.getElementById('lenVal').innerText = document.getElementById('passLength').value;
+}
+
+function generatePass() {
+    const length = document.getElementById('passLength').value;
+    const sets = {
+        upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        lower: "abcdefghijklmnopqrstuvwxyz",
+        number: "0123456789",
+        symbol: "!@#$%^&*()_+~`|}{[]:;?><,./-="
+    };
+
+    let charSet = "";
+    if (document.getElementById('pUpper').checked) charSet += sets.upper;
+    if (document.getElementById('pLower').checked) charSet += sets.lower;
+    if (document.getElementById('pNumber').checked) charSet += sets.number;
+    if (document.getElementById('pSymbol').checked) charSet += sets.symbol;
+
+    if (!charSet) {
+        document.getElementById('passResult').value = "---";
+        return;
+    }
+
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charSet.charAt(Math.floor(Math.random() * charSet.length));
+    }
+
+    document.getElementById('passResult').value = password;
+    checkStrength(password);
+}
+
+
+function generatePass() {
+    const length = document.getElementById('passLength').value;
+    const hasUpper = document.getElementById('pUpper').checked;
+    const hasLower = document.getElementById('pLower').checked;
+    const hasNumber = document.getElementById('pNumber').checked;
+    const hasSymbol = document.getElementById('pSymbol').checked;
+
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const number = "0123456789";
+    const symbol = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+
+    let charSet = "";
+    if (hasUpper) charSet += upper;
+    if (hasLower) charSet += lower;
+    if (hasNumber) charSet += number;
+    if (hasSymbol) charSet += symbol;
+
+    if (charSet === "") return document.getElementById('passResult').value = "Select Option!";
+
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charSet.charAt(Math.floor(Math.random() * charSet.length));
+    }
+
+    document.getElementById('passResult').value = password;
+    checkStrength(password);
+}
+
+function checkStrength(p) {
+    let score = 0;
+    if (p.length > 8) score++;
+    if (/[A-Z]/.test(p)) score++;
+    if (/[0-9]/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+
+    const fill = document.getElementById('strengthFill');
+    const text = document.getElementById('strengthText');
+    const colors = ["#ff4757", "#ffa502", "#2ed573", "#1e90ff"];
+    const labels = currentLang === 'en' ? ["Weak", "Fair", "Strong", "Very Strong"] : ["ខ្សោយ", "មធ្យម", "ខ្លាំង", "សុវត្ថិភាពបំផុត"];
+
+    fill.style.width = (score / 4 * 100) + "%";
+    fill.style.backgroundColor = colors[score - 1] || colors[0];
+    text.innerText = labels[score - 1] || labels[0];
+    text.style.color = colors[score - 1] || colors[0];
+}
+
+function copyPass() {
+    const el = document.getElementById('passResult');
+    navigator.clipboard.writeText(el.value);
+    alert(currentLang === 'en' ? "Password Copied!" : "ចម្លងលេខសម្ងាត់រួចរាល់!");
+}
+
+// ហៅឱ្យដើរដំបូង
+setTimeout(generatePass, 1000);
+
 
 </script>
 </body> </html>
