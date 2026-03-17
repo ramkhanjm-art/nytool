@@ -3,7 +3,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akima Tools</title>
-    <link rel="manifest" href="manifest.json">
+  <!-- Inline PWA Manifest -->
+  <script type="application/ld+json" id="inline-manifest">
+  {
+    "name": "Akima Tools",
+    "short_name": "Akima",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#007bff",
+    "icons": [
+      {
+        "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAADTED8xAA...", 
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  </script>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9559/9559035.png">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
@@ -2481,6 +2498,22 @@ function startTyping() {
 // កំណត់ Text ដំបូងពេលបើក Page
 document.addEventListener('DOMContentLoaded', resetTypingTest);
 
+// Create a blob URL for the manifest
+  const manifestText = document.getElementById('inline-manifest').textContent;
+  const manifestBlob = new Blob([manifestText], { type: 'application/json' });
+  const manifestURL = URL.createObjectURL(manifestBlob);
 
+  // Inject manifest link
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestURL;
+  document.head.appendChild(link);
+
+  // Register a basic service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch(err => console.log('Service Worker registration failed:', err));
+  }
 </script>
 </body> </html>
