@@ -3,13 +3,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akima Tools</title>
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9559/9559035.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9559/9559035.png">
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
 <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -298,58 +300,7 @@ footer {
     color: var(--primary);
     font-weight: bold;
 }
-
-:root {
-    --primary: #007bff;
-    --primary-light: #e1eeff;
-    --bg: #f0f2f5;
-    --card: #ffffff;
-    --text: #2d3436;
-    --border: #dcdde1;
-    --shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
 * { box-sizing: border-box; font-family: 'Kantumruy Pro', sans-serif; }
-
-body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-
-/* Layout ឆ្វេង-ស្តាំ សម្រាប់ Desktop */
-.tts-container {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-@media (min-width: 850px) {
-    .tts-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        align-items: start;
-    }
-}
-
-/* រចនាប័ទ្ម Card និង Input */
-.qr-config-group {
-    background: var(--card);
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-}
-
-.qr-label {
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: block;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
 input, select, textarea {
     width: 100%;
     padding: 12px;
@@ -359,87 +310,6 @@ input, select, textarea {
     font-size: 15px;
     outline: none;
     transition: 0.3s;
-}
-
-input:focus, textarea:focus {
-    border-color: var(--primary);
-    background: #fff;
-    box-shadow: 0 0 0 4px var(--primary-light);
-}
-
-/* ប៊ូតុងមេ */
-.btn-main {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 15px 25px;
-    border-radius: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    transition: 0.3s;
-    font-size: 16px;
-}
-
-.btn-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,123,255,0.4);
-}
-
-/* ផ្នែកបង្ហាញលទ្ធផល (Output Display) */
-.tts-output {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: sticky;
-    top: 20px;
-}
-
-.qr-preview-card {
-    background: white;
-    padding: 25px;
-    border-radius: 30px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    width: 100%;
-    max-width: 350px;
-}
-
-/* Unit Converter Chips */
-.unit-selector-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.unit-chip {
-    padding: 10px;
-    border-radius: 12px;
-    background: #f1f2f6;
-    font-size: 12px;
-    cursor: pointer;
-    text-align: center;
-    border: 2px solid transparent;
-    transition: 0.2s;
-}
-
-.unit-chip.active {
-    background: var(--primary-light);
-    border-color: var(--primary);
-    color: var(--primary);
-    font-weight: bold;
-}
-
-/* Color Picker Preview */
-#colorPreview {
-    width: 100%;
-    height: 180px;
-    border-radius: 25px;
-    margin-bottom: 15px;
-    border: 5px solid white;
-    box-shadow: var(--shadow);
 }
 .pass-option-row {
     display: flex;
@@ -508,16 +378,70 @@ input:focus, textarea:focus {
 
 .apple-switch:checked::before { transform: translateX(24px); }
 
+        .dl-btn { background: #28a745; color: white; }
+        .share-btn { background: #00acee; color: white; }
+          /* រចនាប័ទ្មប៊ូតុងឱ្យដូច Play Store */
+    .playstore-btn {
+        display: none; /* លាក់ជាមុន សឹមបង្ហាញតាម JavaScript */
+        background-color: transparent;
+        color: white;
+        padding: 8px 8px;
+        border-radius: 7px;
+        border: 1px solid #ffff;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Roboto', sans-serif;
+        transition: 0.3s;
+    }
+
+    .playstore-btn:hover {
+        
+    }
+
+    .playstore-btn img {
+        width: 19px; /* រូប Icon App របស់អ្នក */
+        height: 19px;
+        margin-right: 5px;
+        border-radius: 4px;
+    }
+
+    .playstore-btn .btn-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        line-height: 1.2;
+    }
+
+    .playstore-btn .get-it {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .playstore-btn .app-name {
+        font-size: 18px;
+        font-weight: 500;
+    }
     </style>
 </head>
 <body data-theme="light">
 
 <div class="app-container">
     <nav>
-        <div class="logo">Akima Tools</div>
+        <div class="logo">Akima</div>
         <div class="nav-controls">
+<button id="installBtn"
+  class="playstore-btn">
+ <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" alt="App Icon">
+    <div class="btn-text">
+        <span class="get-it"></span>
+        <span class="nytools"></span>
+    </div>
+    </button>
             <button class="switch-btn" onclick="toggleLang()" id="langBtn">KH</button>
-            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light ☀️</button>
+            <button class="switch-btn" onclick="toggleTheme()" id="themeBtn">Light️</button>
         </div>
     </nav>
 
@@ -547,7 +471,7 @@ input:focus, textarea:focus {
 </div>
 <div class="tool-card" onclick="showPage('unit-converter')">
     <div class="icon-box">
-        <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+        <img src="https://cdn-icons-png.flaticon.com/512/15399/15399191.png">
     </div>
     <span class="ui-text" data-en="Unit Converter" data-kh="កម្មវិធីប្តូរខ្នាត">Unit Converter</span>
 </div>
@@ -564,6 +488,79 @@ input:focus, textarea:focus {
     </div>
     <span class="ui-text" data-en="Password Gen" data-kh="បង្កើតលេខសម្ងាត់">Password Gen</span>
 </div>
+<div class="tool-card" onclick="showPage('age-calc')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/3788/3788610.png">
+    </div>
+    <span class="ui-text" data-en="Age Calculator" data-kh="គណនាអាយុ">Age Calculator</span>
+</div>
+
+<div class="tool-card" onclick="showPage('bmi-calc')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/10476/10476452.png">
+    </div>
+    <span class="ui-text" data-en="BMI Calculator" data-kh="គណនា BMI">BMI Calculator</span>
+</div>
+
+<div class="tool-card" onclick="showPage('img-compressor')">
+    <div class="icon-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/16019/16019172.png">
+    </div>
+    <span class="ui-text" data-en="Image Compress" data-kh="បង្រួមរូបភាព">Image Compress</span>
+</div>
+
+<div class="tool-card" onclick="showPage('img-to-pdf')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/337/337946.png"></div>
+    <span class="ui-text" data-en="Image to PDF" data-kh="ប្តូររូបភាពទៅ PDF">Image to PDF</span>
+</div>
+
+<div class="tool-card" onclick="showPage('word-counter')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png"></div>
+    <span class="ui-text" data-en="Word Counter" data-kh="រាប់ចំនួនពាក្យ">Word Counter</span>
+</div>
+
+<div class="tool-card" onclick="showPage('loan-calc')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png"></div>
+    <span class="ui-text" data-en="Loan Calc" data-kh="គណនាការប្រាក់">Loan Calc</span>
+</div>
+<div class="tool-card" onclick="showPage('base64-to-img')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png"></div>
+    <span class="ui-text" data-en="Code to Image" data-kh="កូដទៅជារូបភាព">Code to Image</span>
+</div>
+<div class="tool-card" onclick="showPage('base64-tool')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/3767/3767088.png"></div>
+    <span class="ui-text" data-en="Base64 Converter" data-kh="រូបភាពទៅជាកូដ">Base64 Conv</span>
+</div>
+
+<div class="tool-card" onclick="showPage('salary-calc')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2243/2243183.png"></div>
+    <span class="ui-text" data-en="Salary Tax" data-kh="គណនាពន្ធបៀវត្ស">Salary Tax</span>
+</div>
+
+<div class="tool-card" onclick="showPage('stopwatch-tool')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2972/2972531.png"></div>
+    <span class="ui-text" data-en="Stopwatch" data-kh="នាឡិកាកំណត់ម៉ោង">Stopwatch</span>
+</div>
+<div class="tool-card" onclick="showPage('ascii-tool')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2976/2976310.png"></div>
+    <span class="ui-text" data-en="Text to ASCII" data-kh="អត្ថបទ ASCII">Text to ASCII</span>
+</div>
+
+<div class="tool-card" onclick="showPage('expiry-calc')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png"></div>
+    <span class="ui-text" data-en="Expiry Tracker" data-kh="ពិនិត្យថ្ងៃផុតកំណត់">Expiry Tracker</span>
+</div>
+
+<div class="tool-card" onclick="showPage('num-to-kh')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/992/992651.png"></div>
+    <span class="ui-text" data-en="Number to KH" data-kh="លេខទៅជាអក្សរ">Number to KH</span>
+</div>
+<div class="tool-card" onclick="showPage('typing-test')">
+    <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/512/2620/2620800.png"></div>
+    <span class="ui-text" data-en="Typing Test" data-kh="តេស្តល្បឿនវាយអក្សរ">Typing Test</span>
+</div>
+
+
 
             </div>
             <amp-ad width="320" height="320"
@@ -874,6 +871,253 @@ Pepsi
         </div>
     </div>
 </div>
+<div id="age-calc" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Age Calculator" data-kh="កម្មវិធីគណនាអាយុ">Age Calculator</h2>
+    
+    <div class="qr-config-group">
+        <span class="qr-label ui-text" data-en="Enter Birth Date" data-kh="បញ្ចូលថ្ងៃខែឆ្នាំកំណើត">Enter Birth Date</span>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="number" id="dd" placeholder="ថ្ងៃ (DD)" min="1" max="31" oninput="calculateAge()">
+            <input type="number" id="mm" placeholder="ខែ (MM)" min="1" max="12" oninput="calculateAge()">
+            <input type="number" id="yy" placeholder="ឆ្នាំ (YYYY)" min="1900" oninput="calculateAge()">
+        </div>
+    </div>
+
+    <div id="ageResult" class="result-box" style="display:block; background: var(--primary); text-align:center;">
+        <h3 id="ageText" style="margin:0;">--</h3>
+        <p id="subAgeText" style="margin:5px 0 0; font-size:12px; opacity:0.8;"></p>
+    </div>
+</div>
+
+
+<div id="bmi-calc" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="BMI Calculator" data-kh="គណនា BMI">BMI Calculator</h2>
+    <div class="qr-config-group">
+        <input type="number" id="bmiWeight" placeholder="ទម្ងន់ (kg)" style="margin-bottom:10px;">
+        <input type="number" id="bmiHeight" placeholder="កម្ពស់ (cm)">
+    </div>
+<button class="btn-main ui-text" 
+        data-en="Calculate BMI" 
+        data-kh="គណនា BMI" 
+        onclick="calculateBMI()">Calculate BMI</button>
+
+    <div id="bmiResBox" class="result-box" style="text-align:center;">
+        <h2 id="bmiVal" style="margin:0;">0.0</h2>
+        <p id="bmiStatus" style="margin:5px 0 0;"></p>
+    </div>
+</div>
+
+<div id="img-compressor" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Image Compressor" data-kh="បង្រួមរូបភាព">Image Compressor</h2>
+    <div class="qr-config-group">
+        <label class="custom-file-upload">
+            <input type="file" id="imgUpload" accept="image/*" onchange="compressImage()" style="display:none;">
+            📁 ជ្រើសរើសរូបភាព
+        </label>
+        <p id="sizeInfo" style="font-size:11px; margin-top:10px;"></p>
+    </div>
+    <div id="compressRes" style="display:none; text-align:center;">
+        <img id="previewImg" style="max-width:100%; border-radius:15px; margin-bottom:15px;">
+        <a id="downloadImg" class="btn-main" style="text-decoration:none; display:block;">ទាញយករូបភាពដែលបង្រួមរួច</a>
+    </div>
+</div>
+<div id="img-to-pdf" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Image to PDF" data-kh="ប្តូររូបភាពទៅជា PDF">Image to PDF</h2>
+    <div class="qr-config-group">
+        <label class="custom-file-upload">
+            <input type="file" id="pdfImgInput" accept="image/*" multiple onchange="previewPdfImages()" style="display:none;">
+            📷 ជ្រើសរើសរូបភាព (អាចរើសច្រើនបាន)
+        </label>
+        <div id="pdfPreview" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px;"></div>
+    </div>
+    <button class="btn-main ui-text" data-en="Generate PDF" data-kh="បង្កើតឯកសារ PDF" onclick="generatePDF()">Generate PDF</button>
+    <div id="progressContainer" style="display: none; margin-top: 20px;">
+    <div style="width: 100%; background: #e0e0e0; border-radius: 10px; height: 10px; overflow: hidden;">
+        <div id="progressBar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>
+    </div>
+    <p id="progressStatus" style="font-size: 12px; margin-top: 5px; text-align: center; color: var(--primary);">0%</p>
+</div>
+
+</div>
+
+<div id="word-counter" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Word Counter" data-kh="កម្មវិធីរាប់ពាក្យ">Word Counter</h2>
+    <textarea id="wordInput" class="ui-placeholder" data-en-ph="Paste text here..." data-kh-ph="បិទភ្ជាប់អត្ថបទនៅទីនេះ..." style="height: 200px;" oninput="countWords()"></textarea>
+    <div class="qr-input-grid" style="margin-top: 15px;">
+        <div class="qr-config-group" style="text-align: center;">
+            <span class="qr-label">Words</span>
+            <div id="wordCount" style="font-size: 24px; font-weight: bold;">0</div>
+        </div>
+        <div class="qr-config-group" style="text-align: center;">
+            <span class="qr-label">Chars</span>
+            <div id="charCount" style="font-size: 24px; font-weight: bold;">0</div>
+        </div>
+    </div>
+</div>
+
+<div id="loan-calc" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Loan Calculator" data-kh="គណនាប្រាក់កម្ចី">Loan Calculator</h2>
+    <div class="qr-config-group">
+        <input type="number" id="loanAmount" placeholder="ប្រាក់ដើម (Amount)" style="margin-bottom: 10px;">
+        <input type="number" id="loanInterest" placeholder="ការប្រាក់ % ក្នុងមួយឆ្នាំ" style="margin-bottom: 10px;">
+        <input type="number" id="loanTerm" placeholder="រយៈពេលខ្លី (ចំនួនខែ)">
+    </div>
+    <button class="btn-main ui-text" data-en="Calculate" data-kh="គណនា" onclick="calculateLoan()">Calculate</button>
+    <div id="loanRes" class="result-box" style="text-align: center;">
+        <span class="ui-text" data-en="Monthly Pay:" data-kh="ត្រូវបង់ក្នុងមួយខែ៖">Monthly Pay:</span>
+        <h2 id="monthlyRepayment" style="margin: 5px 0;">$0.00</h2>
+    </div>
+</div>
+<div id="base64-to-img" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Base64 to Image" data-kh="បំលែងកូដទៅជារូបភាព">Base64 to Image</h2>
+    <div class="qr-config-group">
+        <textarea id="base64InputData" class="ui-placeholder" 
+            data-en-ph="Paste Base64 code here..." 
+            data-kh-ph="បិទភ្ជាប់កូដ Base64 នៅទីនេះ..." 
+            style="height: 150px; font-size: 10px;"></textarea>
+    </div>
+    <button class="btn-main ui-text" data-en="Convert to Image" data-kh="ប្តូរជារូបភាព" onclick="convertBase64ToImg()">Convert to Image</button>
+    
+    <div id="base64ImgRes" style="margin-top:20px; display:none; text-align:center;">
+        <div style="max-width:100%; overflow:auto; border: 2px solid var(--primary); border-radius:15px; background: white;">
+            <canvas id="decodedCanvas"></canvas>
+        </div>
+        <p style="font-size: 11px; color: gray; margin-top: 5px;" class="ui-text" data-en="*If the image is large, scroll to see full version" data-kh="*យករូបភាពទំហំដើមពិតប្រាកដ (100% Original Size)">*យករូបភាពទំហំដើមពិតប្រាកដ (100% Original Size)</p>
+        <a id="downloadDecoded" class="btn-main" style="text-decoration:none; display:block; margin-top:10px;">Download High-Res Image</a>
+    </div>
+</div>
+<div id="base64-tool" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Image to Base64" data-kh="បំលែងរូបភាពទៅជាកូដ">Image to Base64</h2>
+    <div class="qr-config-group">
+        <input type="file" id="base64Input" accept="image/*" onchange="convertToBase64()">
+    </div>
+    <textarea id="base64Result" style="height: 150px; font-size: 10px;" readonly placeholder="Code..."></textarea>
+    <button class="btn-main ui-text" data-en="Copy Code" data-kh="ចម្លងកូដ" onclick="copyBase64()">Copy Code</button>
+</div>
+
+<div id="salary-calc" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Salary Tax Calc" data-kh="គណនាពន្ធលើប្រាក់បៀវត្ស">Salary Tax</h2>
+    <div class="qr-config-group">
+        <input type="number" id="salaryInput" placeholder="ប្រាក់បៀវត្សសរុប (៛)">
+    </div>
+    <button class="btn-main ui-text" data-en="Calculate" data-kh="គណនា" onclick="calculateTax()">Calculate</button>
+    <div id="taxRes" class="result-box" style="display:none; text-align: left;">
+        <p>ពន្ធត្រូវបង់: <span id="taxAmount">0</span> ៛</p>
+        <p>ប្រាក់នៅសល់: <span id="netSalary">0</span> ៛</p>
+    </div>
+</div>
+
+<div id="stopwatch-tool" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Stopwatch" data-kh="នាឡិកាកំណត់ម៉ោង">Stopwatch</h2>
+    <div style="text-align: center; margin: 20px 0;">
+        <div id="swDisplay" style="font-size: 45px; font-family: monospace; font-weight: bold; margin-bottom: 20px;">00:00:00</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-main" onclick="startSW()">Start</button>
+            <button class="btn-main" style="background:#6c757d;" onclick="stopSW()">Stop</button>
+            <button class="btn-main" style="background:#ff4757;" onclick="resetSW()">Reset</button>
+        </div>
+    </div>
+</div>
+<div id="ascii-tool" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Text to ASCII Art" data-kh="ប្តូរអត្ថបទទៅជា ASCII">Text to ASCII</h2>
+    <input type="text" id="asciiInput" placeholder="Type here..." oninput="generateASCII()">
+    <pre id="asciiResult" style="background:#000; color:#0f0; padding:15px; border-radius:10px; overflow-x:auto; font-size:10px; margin-top:15px;"></pre>
+</div>
+
+<div id="expiry-calc" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Expiry Tracker" data-kh="ពិនិត្យថ្ងៃផុតកំណត់">Expiry Tracker</h2>
+    
+    <div class="qr-config-group">
+        <label class="qr-label ui-text" data-en="Manufacturing Date" data-kh="ថ្ងៃផលិត">ថ្ងៃផលិត</label>
+        <input type="date" id="mfgDate" style="font-size: 16px; padding: 12px;">
+        
+        <label class="qr-label ui-text" data-en="Shelf Life" data-kh="រយៈពេលប្រើប្រាស់">រយៈពេលប្រើប្រាស់</label>
+        <div style="display: flex; gap: 5px;">
+            <input type="number" id="shelfLife" placeholder="ចំនួន" style="flex: 1;">
+            <select id="shelfUnit" style="width: 80px; border-radius: 10px; border: 1px solid #ddd;">
+                <option value="months">ខែ</option>
+                <option value="days">ថ្ងៃ</option>
+                <option value="years">ឆ្នាំ</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;">
+            <button class="btn-mini" onclick="setShortcut(6, 'months')">6 ខែ</button>
+            <button class="btn-mini" onclick="setShortcut(1, 'years')">1 ឆ្នាំ</button>
+            <button class="btn-mini" onclick="setShortcut(2, 'years')">2 ឆ្នាំ</button>
+        </div>
+    </div>
+
+    <button class="btn-main ui-text" data-en="Calculate Expiry" data-kh="គណនាថ្ងៃផុតកំណត់" onclick="checkExpiry()" style="margin-top: 20px;">គណនាថ្ងៃផុតកំណត់</button>
+
+    <div id="expiryRes" class="result-box" style="display:none; text-align:center; border-radius: 15px; transition: 0.3s;">
+        <p id="expiryStatusText" style="font-weight: bold; margin-bottom: 5px;"></p>
+        <h2 id="expiryDateVal" style="margin: 0;"></h2>
+        <p id="daysLeft" style="font-size: 12px; margin-top: 5px; opacity: 0.8;"></p>
+    </div>
+</div>
+
+<style>
+.btn-mini {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.btn-mini:hover { background: var(--primary); color: white; }
+</style>
+
+<div id="num-to-kh" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Number to Khmer Text" data-kh="ប្តូរលេខទៅជាអក្សរខ្មែរ">Number to KH</h2>
+    <input type="number" id="numInput" placeholder="បញ្ចូលលេខ..." oninput="convertToKhText()">
+    <div class="result-box" id="khTextRes" style="display:block; text-align:center; min-height:60px; font-weight:bold; color:var(--primary);">
+        ---
+    </div>
+</div>
+<div id="typing-test" class="page">
+    <span class="back-btn" onclick="showPage('home')">← <span class="ui-text" data-en="Back" data-kh="ត្រឡប់">Back</span></span>
+    <h2 class="ui-text" data-en="Typing Speed Test" data-kh="តេស្តល្បឿនវាយអក្សរ">Typing Test</h2>
+    
+    <div class="result-box" style="display:block; background:#f0f7ff; border: 1px dashed var(--primary);">
+        <p id="targetText" style="font-size: 18px; line-height: 1.6; user-select: none;">Loading text...</p>
+    </div>
+
+    <textarea id="typingInput" class="ui-placeholder" 
+        data-en-ph="Start typing here..." 
+        data-kh-ph="ចាប់ផ្តើមវាយនៅទីនេះ..." 
+        style="height: 100px; margin-top: 15px;" 
+        oninput="startTyping()"></textarea>
+
+    <div class="qr-input-grid" style="margin-top: 15px;">
+        <div class="qr-config-group" style="text-align: center;">
+            <span class="qr-label">WPM</span>
+            <div id="wpmRes" style="font-size: 24px; font-weight: bold; color: var(--primary);">0</div>
+        </div>
+        <div class="qr-config-group" style="text-align: center;">
+            <span class="qr-label">Accuracy (%)</span>
+            <div id="accRes" style="font-size: 24px; font-weight: bold; color: #28a745;">0</div>
+        </div>
+    </div>
+    
+    <button class="btn-main" onclick="resetTypingTest()" style="margin-top: 15px; background: #6c757d;">Reset Test</button>
+</div>
+
+
 
 
         <footer>
@@ -901,13 +1145,46 @@ Pepsi
     let audioUrl = "";
     const API = "https://nytool.onrender.com/api/tts";
 
-    function toggleLang() {
-        const btn = document.getElementById('langBtn');
-        const isEn = btn.innerText === 'KH';
-        btn.innerText = isEn ? 'EN' : 'KH';
-        document.querySelectorAll('.ui-text').forEach(el => el.innerText = isEn ? el.dataset.kh : el.dataset.en);
-        document.querySelectorAll('.ui-placeholder').forEach(el => el.placeholder = isEn ? el.dataset.khPh : el.dataset.enPh);
+function toggleLang() {
+    const btn = document.getElementById('langBtn');
+    // បើប៊ូតុងបង្ហាញ 'KH' មានន័យថាបច្ចុប្បន្នជា English ចង់ប្តូរទៅខ្មែរ
+    const isChangingToKh = btn.innerText === 'KH';
+    
+    btn.innerText = isChangingToKh ? 'EN' : 'KH';
+
+    // ១. ប្តូរអត្ថបទ UI ទូទៅ (ដេញតាម attribute data-en និង data-kh)
+    document.querySelectorAll('.ui-text').forEach(el => {
+        el.innerText = isChangingToKh ? el.dataset.kh : el.dataset.en;
+    });
+
+    // ២. ប្តូរអត្ថបទក្នុងប្រឡោះបញ្ចូល (Placeholder)
+    document.querySelectorAll('.ui-placeholder').forEach(el => {
+        el.placeholder = isChangingToKh ? el.dataset.khPh : el.dataset.enPh;
+    });
+
+    // ៣. ប្តូរអត្ថបទក្នុងប្រឡោះ Input ធម្មតាដែលមាន Placeholder (ដូចជាក្នុង BMI ឬ Age Calc)
+    // យើងអាចបន្ថែមលក្ខខណ្ឌពិសេសសម្រាប់ពួកវា
+    updateSpecialPlaceholders(isChangingToKh);
+    
+    // ៤. ហៅមុខងារគណនាឡើងវិញ ដើម្បីឱ្យលទ្ធផលប្តូរភាសាតាមដែរ (ដូចជាអាយុ)
+    if(typeof calculateAge === "function") calculateAge();
+}
+
+function updateSpecialPlaceholders(toKh) {
+    const placeholders = {
+        'bmiWeight': { en: 'Weight (kg)', kh: 'ទម្ងន់ (kg)' },
+        'bmiHeight': { en: 'Height (cm)', kh: 'កម្ពស់ (cm)' },
+        'dd': { en: 'Day (DD)', kh: 'ថ្ងៃ (DD)' },
+        'mm': { en: 'Month (MM)', kh: 'ខែ (MM)' },
+        'yy': { en: 'Year (YYYY)', kh: 'ឆ្នាំ (YYYY)' }
+    };
+
+    for (let id in placeholders) {
+        const el = document.getElementById(id);
+        if (el) el.placeholder = toKh ? placeholders[id].kh : placeholders[id].en;
     }
+}
+
 
     function toggleTheme() {
         const body = document.body;
@@ -1764,6 +2041,445 @@ function copyPass() {
 
 // ហៅឱ្យដើរដំបូង
 setTimeout(generatePass, 1000);
+
+// --- មុខងារគណនាអាយុ ---
+function calculateAge() {
+    const d = parseInt(document.getElementById('dd').value);
+    const m = parseInt(document.getElementById('mm').value);
+    const y = parseInt(document.getElementById('yy').value);
+    
+    // បើបញ្ចូលមិនទាន់គ្រប់គ្រាន់ មិនទាន់គណនាទេ
+    if (!d || !m || !y || y < 1000) return;
+
+    const birth = new Date(y, m - 1, d);
+    const now = new Date();
+
+    // ពិនិត្យមើលថាថ្ងៃខែឆ្នាំដែលបញ្ចូលត្រឹមត្រូវឬអត់
+    if (birth > now || m > 12 || d > 31) {
+        document.getElementById('ageText').innerText = "ទិន្នន័យមិនត្រឹមត្រូវ";
+        return;
+    }
+
+    let years = now.getFullYear() - birth.getFullYear();
+    let months = now.getMonth() - birth.getMonth();
+    let days = now.getDate() - birth.getDate();
+
+    if (days < 0) {
+        months--;
+        days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    }
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    const isKh = document.getElementById('langBtn').innerText === 'EN';
+    
+    if (isKh) {
+        document.getElementById('ageText').innerText = `${years} ឆ្នាំ ${months} ខែ`;
+        document.getElementById('subAgeText').innerText = `ត្រូវនឹងថ្ងៃទី ${d} ខែ ${m} ឆ្នាំ ${y}`;
+    } else {
+        document.getElementById('ageText').innerText = `${years} Years, ${months} Months`;
+        document.getElementById('subAgeText').innerText = `Born on: ${d}/${m}/${y}`;
+    }
+}
+
+
+// --- មុខងារគណនា BMI ---
+function calculateBMI() {
+    const w = parseFloat(document.getElementById('bmiWeight').value);
+    const h = parseFloat(document.getElementById('bmiHeight').value) / 100;
+    if (!w || !h) return;
+    
+    const bmi = (w / (h * h)).toFixed(1);
+    const resBox = document.getElementById('bmiResBox');
+    const status = document.getElementById('bmiStatus');
+    
+    resBox.style.display = 'flex';
+    document.getElementById('bmiVal').innerText = bmi;
+    
+    if (bmi < 18.5) { status.innerText = "Underweight (ស្គម)"; resBox.style.background = "#ffbc00"; }
+    else if (bmi < 25) { status.innerText = "Normal (សមរម្យ)"; resBox.style.background = "#28a745"; }
+    else { status.innerText = "Overweight (លើសទម្ងន់)"; resBox.style.background = "#ff4757"; }
+}
+
+// --- មុខងារបង្រួមរូបភាព ---
+function compressImage() {
+    const file = document.getElementById('imgUpload').files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const scale = Math.min(1, 800 / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            
+            document.getElementById('previewImg').src = dataUrl;
+            document.getElementById('downloadImg').href = dataUrl;
+            document.getElementById('downloadImg').download = "compressed_akima.jpg";
+            document.getElementById('compressRes').style.display = 'block';
+            document.getElementById('sizeInfo').innerText = `ទំហំដើម: ${(file.size/1024).toFixed(1)} KB`;
+        }
+    }
+}
+
+let deferredPrompt;
+const installContainer = document.getElementById('installContainer');
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // ទប់ស្កាត់កុំឱ្យ Browser បង្ហាញផ្ទាំងដំឡើងអូតូ
+    e.preventDefault();
+    // រក្សាទុកព្រឹត្តិការណ៍ទុកប្រើពេលក្រោយ
+    deferredPrompt = e;
+    // បង្ហាញប៊ូតុងដំឡើងដែលយើងបានលាក់ទុក
+    installContainer.style.display = 'block';
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        // បង្ហាញផ្ទាំងសួរដំឡើងរបស់ Browser
+        deferredPrompt.prompt();
+        // រង់ចាំមើលអ្នកប្រើចុច "យល់ព្រម" ឬ "បោះបង់"
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('User installed the app');
+        }
+        // លាក់ប៊ូតុងវិញ ព្រោះប្រើរួចហើយ
+        deferredPrompt = null;
+        installContainer.style.display = 'none';
+    }
+});
+
+// លាក់ប៊ូតុងភ្លាម បើ App ត្រូវបានដំឡើងរួចហើយ
+window.addEventListener('appinstalled', () => {
+    installContainer.style.display = 'none';
+    deferredPrompt = null;
+    alert("សូមអរគុណសម្រាប់ការដំឡើង Akima Tools!");
+});
+// --- Image to PDF ---
+function previewPdfImages() {
+    const preview = document.getElementById('pdfPreview');
+    preview.innerHTML = "";
+    const files = document.getElementById('pdfImgInput').files;
+    Array.from(files).forEach(file => {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.style.width = "60px";
+        img.style.height = "60px";
+        img.style.objectFit = "cover";
+        img.style.borderRadius = "8px";
+        preview.appendChild(img);
+    });
+}
+
+async function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const files = document.getElementById('pdfImgInput').files;
+    
+    if (files.length === 0) return alert("សូមជ្រើសរើសរូបភាព! / Please select images!");
+
+    // បង្ហាញ Progress Bar
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressStatus = document.getElementById('progressStatus');
+    const btn = event.target;
+
+    progressContainer.style.display = 'block';
+    btn.disabled = true;
+
+    try {
+        for (let i = 0; i < files.length; i++) {
+            // គណនាភាគរយ (%)
+            let percent = Math.round(((i + 1) / files.length) * 100);
+            progressBar.style.width = percent + "%";
+            progressStatus.innerText = `កំពុងដំណើរការ... ${percent}%`;
+
+            const imgData = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(files[i]);
+            });
+
+            if (i > 0) doc.addPage();
+            
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        }
+        
+        doc.save("akima_converted.pdf");
+        progressStatus.innerText = "ជោគជ័យ! (Completed)";
+    } catch (error) {
+        alert("Error: " + error.message);
+    } finally {
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = "0%";
+            btn.disabled = false;
+        }, 2000);
+    }
+}
+
+
+
+// --- Word Counter ---
+function countWords() {
+    const text = document.getElementById('wordInput').value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    const chars = text.length;
+    document.getElementById('wordCount').innerText = words;
+    document.getElementById('charCount').innerText = chars;
+}
+
+// --- Loan Calculator ---
+function calculateLoan() {
+    const principal = parseFloat(document.getElementById('loanAmount').value);
+    const interest = parseFloat(document.getElementById('loanInterest').value) / 100 / 12;
+    const payments = parseFloat(document.getElementById('loanTerm').value);
+
+    if (!principal || !interest || !payments) return;
+
+    const x = Math.pow(1 + interest, payments);
+    const monthly = (principal * x * interest) / (x - 1);
+
+    document.getElementById('monthlyRepayment').innerText = "$" + monthly.toFixed(2);
+    document.getElementById('loanRes').style.display = 'block';
+}
+function convertBase64ToImg() {
+    const base64Data = document.getElementById('base64InputData').value.trim();
+    if (!base64Data) return alert("សូមបញ្ចូលកូដជាមុនសិន!");
+
+    const resDiv = document.getElementById('base64ImgRes');
+    const canvas = document.getElementById('decodedCanvas');
+    const ctx = canvas.getContext('2d');
+    const dl = document.getElementById('downloadDecoded');
+
+    // ១. បង្កើត Image Object ជាបណ្តោះអាសន្ន
+    const img = new Image();
+    
+    // ឆែកមើលថាមាន Header 'data:image/...' ឬនៅ
+    let finalBase64 = base64Data;
+    if (!base64Data.startsWith('data:image/')) {
+        // បើមិនទាន់មាន យើងឧបមាថាជា PNG
+        finalBase64 = 'data:image/png;base64,' + base64Data;
+    }
+    
+    img.src = finalBase64;
+
+    // ២. នៅពេលរូបភាពដើរ (Load) រៀបចំ Render ឱ្យច្បាស់
+    img.onload = function() {
+        // កំណត់ទំហំ Canvas ឱ្យស្មើនឹងទំហំដើមរបស់រូបភាព (Original Size)
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        
+        // គូររូបភាពចូលក្នុង Canvas (គ្មានការបង្រួមទំហំឡើយ)
+        ctx.drawImage(img, 0, 0);
+
+        // រៀបចំប៊ូតុងទាញយក (Download) ឱ្យច្បាស់កម្រិតខ្ពស់
+        dl.href = finalBase64;
+        dl.download = "akima_highres_image.png";
+
+        // បង្ហាញលទ្ធផល
+        resDiv.style.display = 'block';
+    };
+
+    // ៣. បើកូដខុស មិនបង្ហាញលទ្ធផល
+    img.onerror = function() {
+        alert("កូដមិនត្រឹមត្រូវ! សូមពិនិត្យមើលកូដ Base64 របស់អ្នកឡើងវិញ។");
+        resDiv.style.display = 'none';
+    };
+}
+// --- Base64 Converter ---
+function convertToBase64() {
+    const file = document.getElementById('base64Input').files[0];
+    const reader = new FileReader();
+    reader.onloadend = function() {
+        document.getElementById('base64Result').value = reader.result;
+    }
+    if (file) reader.readAsDataURL(file);
+}
+function copyBase64() {
+    const el = document.getElementById('base64Result');
+    el.select();
+    document.execCommand('copy');
+    alert("Copied!");
+}
+
+// --- Salary Tax (Simple Cambodia Tax Logic 2024/2025) ---
+function calculateTax() {
+    const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+    let tax = 0;
+    if (salary <= 1500000) tax = 0;
+    else if (salary <= 2000000) tax = (salary * 0.05) - 75000;
+    else if (salary <= 8500000) tax = (salary * 0.10) - 175000;
+    else if (salary <= 12500000) tax = (salary * 0.15) - 600000;
+    else tax = (salary * 0.20) - 1225000;
+
+    document.getElementById('taxAmount').innerText = Math.max(0, tax).toLocaleString();
+    document.getElementById('netSalary').innerText = (salary - Math.max(0, tax)).toLocaleString();
+    document.getElementById('taxRes').style.display = 'block';
+}
+
+// --- Stopwatch Logic ---
+let swInterval;
+let swSeconds = 0;
+function startSW() {
+    clearInterval(swInterval);
+    swInterval = setInterval(() => {
+        swSeconds++;
+        let hrs = Math.floor(swSeconds / 3600);
+        let mins = Math.floor((swSeconds % 3600) / 60);
+        let secs = swSeconds % 60;
+        document.getElementById('swDisplay').innerText = 
+            `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+function stopSW() { clearInterval(swInterval); }
+function resetSW() {
+    stopSW();
+    swSeconds = 0;
+    document.getElementById('swDisplay').innerText = "00:00:00";
+}
+
+// --- ASCII Art (Simple Font) ---
+function generateASCII() {
+    const text = document.getElementById('asciiInput').value;
+    // នេះជាគំរូសាមញ្ញ បើចង់បានស្អាតត្រូវប្រើ Library ដូចជា Figlet
+    document.getElementById('asciiResult').innerText = text.split('').map(c => c.repeat(3)).join('\n');
+    // កំណត់សម្គាល់៖ ដើម្បីឱ្យ ASCII ស្អាតពិតប្រាកដ អ្នកអាចប្រើ Font ពិសេស ឬ API
+}
+
+// --- Expiry Tracker ---
+// មុខងារកំណត់តម្លៃផ្លូវកាត់
+function setShortcut(val, unit) {
+    document.getElementById('shelfLife').value = val;
+    document.getElementById('shelfUnit').value = unit;
+    checkExpiry(); // គណនាភ្លាមៗ
+}
+
+// មុខងារគណនាថ្មី
+function checkExpiry() {
+    const mfgInput = document.getElementById('mfgDate').value;
+    const shelfValue = parseInt(document.getElementById('shelfLife').value);
+    const unit = document.getElementById('shelfUnit').value;
+
+    if (!mfgInput || isNaN(shelfValue)) {
+        alert("សូមបញ្ចូលថ្ងៃផលិត និងរយៈពេលឱ្យបានត្រឹមត្រូវ!");
+        return;
+    }
+
+    const mfgDate = new Date(mfgInput);
+    const expDate = new Date(mfgDate);
+
+    // គណនាទៅតាមឯកតាដែលបានរើស
+    if (unit === 'days') expDate.setDate(expDate.getDate() + shelfValue);
+    else if (unit === 'months') expDate.setMonth(expDate.getMonth() + shelfValue);
+    else if (unit === 'years') expDate.setFullYear(expDate.getFullYear() + shelfValue);
+    
+    const now = new Date();
+    now.setHours(0,0,0,0); // កំណត់ត្រឹមដើមថ្ងៃ
+
+    const resBox = document.getElementById('expiryRes');
+    const statusText = document.getElementById('expiryStatusText');
+    const daysLeftText = document.getElementById('daysLeft');
+    
+    resBox.style.display = 'block';
+    document.getElementById('expiryDateVal').innerText = expDate.toLocaleDateString('km-KH'); // បង្ហាញជាទម្រង់ខ្មែរ
+
+    // គណនាចំនួនថ្ងៃដែលនៅសល់
+    const diffTime = expDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+        statusText.innerText = "❌ ផុតកំណត់ហើយ (Expired)";
+        resBox.style.background = "#ff4757";
+        resBox.style.color = "white";
+        daysLeftText.innerText = `ផុតកំណត់ចំនួន ${Math.abs(diffDays)} ថ្ងៃហើយ`;
+    } else if (diffDays <= 30) {
+        statusText.innerText = "⚠️ ជិតផុតកំណត់ហើយ (Warning)";
+        resBox.style.background = "#ffa502";
+        resBox.style.color = "white";
+        daysLeftText.innerText = `នៅសល់តែ ${diffDays} ថ្ងៃទៀតប៉ុណ្ណោះ`;
+    } else {
+        statusText.innerText = "✅ នៅប្រើបាន (Safe)";
+        resBox.style.background = "#2ed573";
+        resBox.style.color = "white";
+        daysLeftText.innerText = `នៅសល់រយៈពេល ${diffDays} ថ្ងៃទៀត`;
+    }
+}
+
+
+// --- Number to Khmer Text ---
+function convertToKhText() {
+    const num = document.getElementById('numInput').value;
+    if (!num) return;
+    const khNumbers = ['សូន្យ', 'មួយ', 'ពីរ', 'បី', 'បួន', 'ប្រាំ', 'ប្រាំមួយ', 'ប្រាំពីរ', 'ប្រាំបី', 'ប្រាំប្រាំបួន'];
+    // មុខងារនេះត្រូវការ Logic វែងបន្តិចសម្រាប់ខ្ទង់រយ ពាន់ ម៉ឺន
+    // នេះជាការបង្ហាញបណ្តោះអាសន្នសម្រាប់លេខរាយ
+    let result = num.split('').map(n => khNumbers[n] || n).join(' ');
+    document.getElementById('khTextRes').innerText = result;
+}
+let startTime, timerActive = false;
+const sampleTexts = {
+    en: "The quick brown fox jumps over the lazy dog. Programming is the art of algorithm design and execution.",
+    kh: "ភាសាខ្មែរគឺជាភាសាផ្លូវការរបស់ប្រទេសកម្ពុជា។ ការរៀនបច្ចេកវិទ្យាជួយឱ្យយើងមានឱកាសការងារល្អៗជាច្រើន។"
+};
+
+function resetTypingTest() {
+    const lang = document.documentElement.lang || 'en';
+    document.getElementById('targetText').innerText = sampleTexts[lang];
+    document.getElementById('typingInput').value = "";
+    document.getElementById('wpmRes').innerText = "0";
+    document.getElementById('accRes').innerText = "0";
+    startTime = null;
+    timerActive = false;
+}
+
+function startTyping() {
+    const input = document.getElementById('typingInput').value;
+    const target = document.getElementById('targetText').innerText;
+    
+    if (!timerActive && input.length > 0) {
+        startTime = new Date();
+        timerActive = true;
+    }
+
+    if (input.length > 0) {
+        const timeElapsed = (new Date() - startTime) / 60000; // ជា "នាទី"
+        const words = input.trim().split(/\s+/).length;
+        const wpm = Math.round(words / timeElapsed);
+        
+        // គណនា Accuracy
+        let correctChars = 0;
+        for (let i = 0; i < input.length; i++) {
+            if (input[i] === target[i]) correctChars++;
+        }
+        const accuracy = Math.round((correctChars / input.length) * 100);
+
+        document.getElementById('wpmRes').innerText = isFinite(wpm) ? wpm : 0;
+        document.getElementById('accRes').innerText = accuracy || 0;
+        
+        if (input === target) {
+            timerActive = false;
+            alert("អបអរសាទរ! អ្នកបានបញ្ចប់ការតេស្ត។");
+        }
+    }
+}
+
+// កំណត់ Text ដំបូងពេលបើក Page
+document.addEventListener('DOMContentLoaded', resetTypingTest);
 
 
 </script>
