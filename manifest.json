@@ -1,20 +1,15 @@
 {
-  "short_name": "NyTool",
-  "name": "Ny Tools",
-  "icons": [
-    {
-      "src": "icon.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icon.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
+  "name": "Akima Tools",
+  "short_name": "Akima",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9559/9559035.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
